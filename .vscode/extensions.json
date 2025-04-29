@@ -1,0 +1,7 @@
+{
+    "recommendations": [
+        "swellaby.rust-pack",
+        "ms-vscode.vscode-typescript-next",
+        "rust-lang.rust-analyzer"
+    ]
+}

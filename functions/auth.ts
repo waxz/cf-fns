@@ -1,4 +1,5 @@
-import html from "../public/dist/login.html";
+import html from '../app-web/src/login.html';
+
 import {template_replace} from "../src/utils/template_replace";
 
 import  {encode_sha256} from  "../src/utils/encode";

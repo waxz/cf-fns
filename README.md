@@ -83,6 +83,12 @@ Install npm dependencies
 ```sh
 yarn
 ```
+Generate types
+
+```sh
+yarn generate-types
+```
+
 
 Build Rust project
 

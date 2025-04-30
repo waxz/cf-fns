@@ -24,6 +24,11 @@ console_error_panic_hook = { version = "0.1.6", optional = true }
 # allocator, however.
 wee_alloc = { version = "0.4.5", optional = true }
 
+
+worker = { version="0.5.0", features = ["d1"] }
+worker-macros = { version="0.5.0" }
+
+
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
 

@@ -12,7 +12,7 @@ export async function load_wasm(f){
     
         if (!result) {
           console.error("WebAssembly instantiation failed (no result):", result);
-          return new Response("Error instantiating WebAssembly", { status: 500 });
+          return;
         }
     
         wasm.__wbg_set_wasm(result.exports); // Try accessing exports directly from 'result'

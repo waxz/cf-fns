@@ -2,6 +2,7 @@
     "recommendations": [
         "swellaby.rust-pack",
         "ms-vscode.vscode-typescript-next",
-        "rust-lang.rust-analyzer"
+        "rust-lang.rust-analyzer",
+        "ms-vscode.vscode-typescript-next"
     ]
 }

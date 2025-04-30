@@ -1,6 +1,9 @@
 
+
 import  {encode_sha256} from  "../src/utils/encode";
 
+import {onRequestGet as authOnGet} from "./auth"
+import {onRequestPost as authOnPost} from "./auth"
 
 async function errorHandling(context) {
   try {
@@ -43,22 +46,11 @@ export async function home(context) {
   const newRequest = new Request(url, request );
   // return fetch(newRequest);
 
-
   console.log(`newRequest: ${newRequest.url}`);
-  const user = 'vite';
-  const psw = 'vite';
-
-  const hexString = await encode_sha256(`${user}:${psw}`);
-
-console.log(hexString);
-
-
-
-
-
-
 
     return context.next();
 }
 
-export const onRequest = [errorHandling, home];
+export const onRequest = [
+  // errorHandling, 
+  home];

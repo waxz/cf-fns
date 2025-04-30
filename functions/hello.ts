@@ -1,20 +1,13 @@
-import { greeting } from "../src/greeting";
-// import html from "../src/greeting_html.html";
+ 
+export async function onRequest(context) {
+  // Pass the absolute URL to the WASM file manually
+  const url = new URL(context.request.url);
 
-interface Env {
-    KV: KVNamespace;
-  }
+  const wasmUrl = new URL("/pkg/src_wasm_bg.wasm", url.protocol +  url.host).toString();
+  // const wasmUrl = new URL("/pkg/src_wasm_bg.wasm", `https://${context.env.PAGES_URL}`).toString();
+ 
 
+  var result = 1.0;
   
-export async function onRequest(context:ExecutionContext) {
-    // const {request} = context;
-    
-
-    return greeting("Pages Functions");
-    // return new Response(
-    //     html,
-    //     {
-    //       headers: { "Content-Type": "text/html" }
-    //     }
-    //   );
+  return new Response(`WASM result: ${result}`);
 }

@@ -3,8 +3,7 @@
     "target": "esnext",
     "module": "esnext",
     "lib": ["esnext"],
-    "types": ["@cloudflare/workers-types"],
-    "allowSyntheticDefaultImports": true
+    "types": ["./functions/types.d.ts", "node"]
   },
   "include": ["functions"]
 }

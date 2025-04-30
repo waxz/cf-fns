@@ -93,6 +93,6 @@ yarn build:app-rust
 Start local server
 
 ```sh
-yarn dev
+yarn dev --ip 0.0.0.0 --port 8888
 ```
 and go to `http://127.0.0.1:8788/` in your browser.

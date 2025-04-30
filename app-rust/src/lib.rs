@@ -26,3 +26,10 @@ pub fn distance_between(from_latitude_degrees: f64, from_longitude_degrees: f64,
     
     return distance;
 }
+
+#[wasm_bindgen]
+pub fn rs_add(a:f64, b:f64) -> f64{
+
+    println!("rs_add: a = {}, b = {}",a,b);
+    a+b
+}

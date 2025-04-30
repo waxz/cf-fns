@@ -1,4 +1,4 @@
-import html from '../app-web/src/login.html';
+import html from '../public/dist/login.html';
 
 import {template_replace} from "../src/utils/template_replace";
 

@@ -11,7 +11,10 @@ export async function onRequest(context) {
   const b = 3.21;
 
 
+
 const handler = async (wasm: any) => {
+  const url_str = url.toString();
+  wasm.rs_url(url_str);
   return wasm.rs_add(a,b);
 };
 

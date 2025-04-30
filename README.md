@@ -103,8 +103,15 @@ yarn dev --ip 0.0.0.0 --port 8888
 ```
 and go to `http://127.0.0.1:8788/` in your browser.
 
+Deploy 
+```sh
+npx wrangler pages deploy
+```
 
-# get pages log
+Get pages log
 ```bash
 npx wrangler pages deployment tail
 ```
+
+# wasm
+https://rustwasm.github.io/wasm-bindgen/examples/hello-world.html

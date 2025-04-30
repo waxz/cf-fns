@@ -1,7 +1,14 @@
 mod utils;
 
 use wasm_bindgen::prelude::*;
+use serde::{Deserialize, Serialize};
+use wasm_bindgen::JsValue;
+use worker::*;
 
+
+
+ 
+use js_sys::JsString;
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
 #[cfg(feature = "wee_alloc")]
@@ -30,6 +37,14 @@ pub fn distance_between(from_latitude_degrees: f64, from_longitude_degrees: f64,
 #[wasm_bindgen]
 pub fn rs_add(a:f64, b:f64) -> f64{
 
-    println!("rs_add: a = {}, b = {}",a,b);
+    console_log!("rs_add: a = {}, b = {}",a,b);
     a+b
 }
+
+#[wasm_bindgen]
+pub async fn rs_url( url:JsString) {
+
+    console_log!("rs_url, url = {}", url);
+    
+}
+

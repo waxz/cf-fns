@@ -1,5 +1,7 @@
 
-import {load_wasm} from "../src/utils/load_wasm.js";
+// import {load_wasm} from "../src/utils/load_wasm.js";
+import {load_wasm} from "../src/utils/load_wasm_web.js";
+// import {load_wasm} from "../src/utils/load_wasm_bunlder.js";
 
  
 export async function onRequest(context) {
@@ -18,7 +20,7 @@ const handler = async (wasm: any) => {
   return wasm.rs_add(a,b);
 };
 
-const result = await load_wasm(handler);
+const result = await load_wasm(context,handler);
 
   
   return new Response(`rs_add(${a},${b}) = ${result}`);

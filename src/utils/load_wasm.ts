@@ -1,8 +1,8 @@
-import * as wasm from "../../app-rust/pkg/src_wasm_bg.js";
+import * as wasm from "../../app-rust/pkg/node/src_wasm_bg.js";
 // @ts-ignore
-import wasmModule from "../../app-rust/pkg/src_wasm_bg.wasm";
+import wasmModule from "../../app-rust/pkg/node/src_wasm_bg.wasm";
 
-export async function load_wasm(f){
+export async function load_wasm(context,f){
     try {
         const imports = {
           "./src_wasm_bg.js": wasm,

@@ -15,6 +15,15 @@ use js_sys::JsString;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
+
+#[wasm_bindgen(start)]
+pub fn main() {
+    // Optional: setup code
+    console_error_panic_hook::set_once(); // Optional
+}
+
+
+
 #[wasm_bindgen]
 pub fn distance_between(from_latitude_degrees: f64, from_longitude_degrees: f64, to_latitude_degrees: f64, to_longitude_degrees: f64) -> f64 {
     let earth_radius_kilometer = 6371.0_f64;
@@ -48,3 +57,22 @@ pub async fn rs_url( url:JsString) {
     
 }
 
+
+static mut CHAR_BUFFER: [u8; 1000] = [0; 1000];
+
+#[wasm_bindgen]
+pub fn get_char_buffer_ptr() -> *const u8 {
+    unsafe { CHAR_BUFFER.as_ptr() }
+}
+
+#[wasm_bindgen]
+pub fn get_char_buffer_len() -> usize {
+    1000
+}
+
+#[wasm_bindgen]
+pub fn print_buffer() -> u32 {
+    unsafe {
+        (CHAR_BUFFER[0] as u32) + (CHAR_BUFFER[1] as u32)
+    }
+}

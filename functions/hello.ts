@@ -5,8 +5,8 @@ import { load_wasm } from "../src/utils/load_wasm_web.js";
 
 import {getGfwTextCached} from "../src/utils/gfw";
 
- let   memory_data ;
-let   memory_data_ptr ;
+ let   GFWLIST ;
+let   GFWLIST_PTR ;
 
 interface Env {
   KV: KVNamespace;
@@ -17,8 +17,8 @@ interface Env {
 export const onRequest: PagesFunction<Env> = async (context) => {
 
 
-  const gfwList = await getGfwTextCached(context, true);
-  console.log(`gfwList:\n${gfwList}`);
+  const gfwList = await getGfwTextCached(context,false);
+  // console.log(`gfwList:\n${gfwList}`);
 
 
   // Pass the absolute URL to the WASM file manually
@@ -33,31 +33,25 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const url_str = url.toString();
     wasm.rs_url(url_str);
 
-    const size = 100;
 
-    if (!memory_data){
-      memory_data_ptr =  wasm.my_alloc(size);
-      memory_data = new Uint8Array(wasm.memory.buffer, memory_data_ptr, size);
-      console.log(`wasm.my_alloc ptr = ${memory_data_ptr}`)
-
-      memory_data.fill(0);
-
+    if (!GFWLIST){
+      GFWLIST_PTR =  wasm.my_alloc(gfwList.length);
+      GFWLIST = new Uint8Array(wasm.memory.buffer, GFWLIST_PTR, gfwList.length);
+      console.log(`wasm.my_alloc ptr = ${GFWLIST_PTR}`)
     }
     // const mem = new Uint8Array(wasm.memory.buffer, ptr, size)
     
-    const msg = "hello";
     const encoder = new TextEncoder();
-    const encoded = encoder.encode(msg);
-    if (encoded.length > memory_data.length) {
+    const encoded = encoder.encode(gfwList);
+    if (encoded.length > GFWLIST.length) {
       throw new Error("Message is too long for the buffer");
     }
 
     // Copy the bytes into WASM memory
-    memory_data.set(encoded);
-    memory_data[5] = memory_data[5] + 1;
+    GFWLIST.set(encoded);
 
-    const sum = wasm.print_buffer(memory_data_ptr, 10);
-    console.log(`sum = ${sum}`)
+    const sum = wasm.print_buffer(GFWLIST_PTR, 10);
+    // console.log(`sum = ${sum}`)
 
 
     {

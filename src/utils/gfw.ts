@@ -5,7 +5,7 @@ import { kv_get,kv_put } from "./kv";
 export async function getGfwText(context) {
     var url = "https://pagure.io/gfwlist/raw/master/f/gfwlist.txt";
     // in cf cache
-    url = "https://raw.githubusercontent.com/gfwlist/gfwlist/refs/heads/master/gfwlist.txt";
+    url = "https://raw.githubusercontent.com/waxz/gfwlist/refs/heads/master/gfwlist.txt";
     const req = new Request(url);
     const gfwlist = await fetch_cache(req, context);
     const gfwlist_text = await gfwlist.text();

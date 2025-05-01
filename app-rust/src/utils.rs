@@ -44,4 +44,3 @@ pub fn set_panic_hook() {
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsValue;
 use worker::*;
- 

@@ -39,6 +39,10 @@ export async function load_wasm(context, f) {
                 // wasm = await WebAssembly.instantiate(buffer, {});
             }
 
+            {
+                wasm.init_lib();
+            }
+
 
 
         }

@@ -3,12 +3,23 @@
 import { load_wasm } from "../src/utils/load_wasm_web.js";
 // import {load_wasm} from "../src/utils/load_wasm_bunlder.js";
 
+import {getGfwTextCached} from "../src/utils/gfw";
 
-let   memory_data ;
+ let   memory_data ;
 let   memory_data_ptr ;
 
+interface Env {
+  KV: KVNamespace;
+}
 
-export async function onRequest(context) {
+
+
+export const onRequest: PagesFunction<Env> = async (context) => {
+
+
+  const gfwList = await getGfwTextCached(context, true);
+  console.log(`gfwList:\n${gfwList}`);
+
 
   // Pass the absolute URL to the WASM file manually
   const url = new URL(context.request.url);

@@ -121,3 +121,9 @@ while true; do curl http://localhost:8888/hello; sleep 1; done
 
 # wasm
 https://rustwasm.github.io/wasm-bindgen/examples/hello-world.html
+
+# kv
+```
+npx wrangler kv namespace list
+npx wrangler kv namespace create KV
+```

@@ -173,3 +173,9 @@ pub unsafe fn my_dealloc_size(ptr: *mut u8, size: usize) {
     dealloc(ptr, layout);
 }
 
+
+pub fn check_url(url: &str) ->bool{
+
+    false
+}
+

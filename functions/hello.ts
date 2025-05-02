@@ -18,7 +18,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
 
   const gfwList = await getGfwTextCached(context,false);
-  console.log(`gfwList:\n${gfwList.slice(10)}`);
+  // console.log(`gfwList:\n${gfwList.slice(10)}`);
 
 
   // Pass the absolute URL to the WASM file manually
@@ -38,8 +38,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       GFWLIST_PTR =  wasm.my_alloc(gfwList.length);
       GFWLIST = new Uint8Array(wasm.memory.buffer, GFWLIST_PTR, gfwList.length);
       console.log(`wasm.my_alloc ptr = ${GFWLIST_PTR}`)
-    }
-    // const mem = new Uint8Array(wasm.memory.buffer, ptr, size)
+    
+        // const mem = new Uint8Array(wasm.memory.buffer, ptr, size)
     
     const encoder = new TextEncoder();
     const encoded = encoder.encode(gfwList);
@@ -49,6 +49,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     // Copy the bytes into WASM memory
     GFWLIST.set(encoded);
+    }
+
 
     const sum = wasm.print_buffer(GFWLIST_PTR, 10);
     // console.log(`sum = ${sum}`)

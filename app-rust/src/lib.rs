@@ -98,7 +98,7 @@ pub fn print_buffer(ptr: *mut u8, size: usize) -> u32 {
 
     for i in 0..size{
         sum = sum + (arr[i] as u32);
-        console_log!("buffer[{}] = {}, {}",i, arr[i], arr[i] as char);
+        // console_log!("buffer[{}] = {}, {}",i, arr[i], arr[i] as char);
     }
     }
     sum

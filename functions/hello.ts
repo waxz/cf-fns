@@ -18,7 +18,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
 
   const gfwList = await getGfwTextCached(context,false);
-  // console.log(`gfwList:\n${gfwList}`);
+  console.log(`gfwList:\n${gfwList.slice(10)}`);
 
 
   // Pass the absolute URL to the WASM file manually
@@ -34,7 +34,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     wasm.rs_url(url_str);
 
 
-    if (!GFWLIST){
+    if (gfwList && !GFWLIST){
       GFWLIST_PTR =  wasm.my_alloc(gfwList.length);
       GFWLIST = new Uint8Array(wasm.memory.buffer, GFWLIST_PTR, gfwList.length);
       console.log(`wasm.my_alloc ptr = ${GFWLIST_PTR}`)

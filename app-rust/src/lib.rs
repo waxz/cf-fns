@@ -66,6 +66,8 @@ pub fn rs_add(a:f64, b:f64) -> f64{
     a+b
 }
 
+
+//  JsString: ok
 #[wasm_bindgen]
 pub async fn rs_url( url:&JsString) {
 

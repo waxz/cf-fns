@@ -17,13 +17,16 @@ export async function getGfwTextCached(context, force:boolean): Promise<string>{
     let gfwlistTextStamp = await kv_get(context, "gfwlistTextStamp");
   
     const now = Date.now();
-    var nedd_update = force;
+    var nedd_update = force || !gfwlistText || !gfwlistTextStamp;
 
     if (gfwlistText && gfwlistTextStamp) {
       const age = now - Number(gfwlistTextStamp);
-      nedd_update = force || (age > 24 * 60 * 60 * 1000);
-      
+      nedd_update = nedd_update || (age > 24 * 60 * 60 * 1000);
     }
+    // console.log(`gfwlistText: ${gfwlistText.slice(10)}`);
+    // console.log(`gfwlistTextStamp: ${gfwlistTextStamp}`);
+    // console.log(`nedd_update: ${nedd_update}`);
+
 
     if (nedd_update) { // 1 d in milliseconds
         gfwlistText = await getGfwText(context);

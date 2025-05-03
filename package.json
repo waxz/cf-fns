@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "description": "A demo app that exemplifies wasm module imports in Pages Functions",
   "scripts": {
-    "dev": "nodemon --watch app-web/src --ext \"html,scss,js,mjs,ts,json\" -x \"yarn build:app-web && cp -r ./app-rust/pkg/ ./public/dist && npx wrangler pages dev public/dist \"",
+    "dev": "nodemon --watch app-web/src --ext \"html,scss,js,mjs,ts,json\" -x \"yarn build:app-web && yarn quartz && cp -r ./app-rust/pkg/ ./public/dist && npx wrangler pages dev public/dist \"",
     "build:app-web": "rm -rf public/dist && parcel build app-web/src/*.html --dist-dir public/dist",
     "rust": "cd app-rust && mkdir -p ./pkg/ && rm -r ./pkg/ && wasm-pack build -d ./pkg/node && wasm-pack build --target web -d ./pkg/web && wasm-pack build --target no-modules -d ./pkg/no-modules && wasm-pack build  --target bundler -d ./pkg/bundler",
     "lint": "eslint .",
     "publish:to-pages": "yarn build:app-web && npx wrangler pages publish public/dist",
-    "generate-types": "wrangler types --path='./functions/types.d.ts'"
+    "generate-types": "wrangler types --path='./functions/types.d.ts'",
+    "quartz": "if [ ! -d ./public/dist/quartz ] ; then mkdir -p ./public/dist/quartz ;fi;docker run --name quartz_builder -v /tmp/quartz:/tmp/quartz -v ./content:/tmp/content -v ./public/dist/quartz:/tmp/output -w /tmp/quartz --rm  node:22 bash -c 'npm install -g npm@11.2.0 && npm i && npx quartz build -d /tmp/content -o /tmp/output'; sudo chown -R $USER:$USER ./public/dist/quartz "
   },
   "devDependencies": {
     "@parcel/transformer-sass": "2.8.3",
@@ -21,6 +22,7 @@
     "wrangler": "^4.14.0"
   },
   "dependencies": {
+    "@cloudflare/workers-wasi": "^0.0.5",
     "globe.gl": "^2.27.1"
   }
 }

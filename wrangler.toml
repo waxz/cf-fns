@@ -6,3 +6,7 @@ pages_build_output_dir = "./public/dist"
 [[kv_namespaces]]
 binding = "KV"
 id = "9a1ad11316c9444d902518c863629fa4"
+
+[[r2_buckets]]
+bucket_name = "r2disk"
+binding = "r2disk"

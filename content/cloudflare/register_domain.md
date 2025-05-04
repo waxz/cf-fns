@@ -1,5 +1,5 @@
 ---
-title: Resiter your domain to Cloudflare
+title: Register your domain to Cloudflare
 ---
 
 # 参考链接

@@ -127,3 +127,22 @@ https://rustwasm.github.io/wasm-bindgen/examples/hello-world.html
 npx wrangler kv namespace list
 npx wrangler kv namespace create KV
 ```
+# use ssl
+### use cf ssl
+```bash
+export ssl_certificate_key=/mnt/data/secret/cf/ssl.key
+export ssl_certificate=/mnt/data/secret/cf/ssl.crt
+
+
+# sudo chown -R $USER:$USER $ssl_certificate_key
+# sudo chown -R $USER:$USER $ssl_certificate
+
+npx wrangler pages dev --local-protocol http --https-key-path $ssl_certificate_key --https-cert-path $ssl_certificate --port 8888 --ip 0.0.0.0
+
+```
+
+# redirect
+[slash best practice](https://developers.google.com/search/blog/2010/04/to-slash-or-not-to-slash)
+[redirect](https://developers.cloudflare.com/pages/configuration/redirects/)
+Redirects defined in the _redirects file are not applied to requests served by Pages Functions, even if the Function route matches the URL pattern. If your Pages application uses Functions, you must migrate any behaviors from the _redirects file to the code in the appropriate /functions route, or exclude the route from Functions.
+

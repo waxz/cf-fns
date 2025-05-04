@@ -119,6 +119,12 @@ while true; do curl http://localhost:8888/hello; sleep 1; done
 
 ```
 
+Quartz
+```bash
+if [ ! -d /tmp/quartz-builder ]; then  git clone --branch v4.5.0 --depth 1 https://github.com/jackyzha0/quartz.git /tmp/quartz-builder; fi
+```
+
+
 # wasm
 https://rustwasm.github.io/wasm-bindgen/examples/hello-world.html
 
@@ -130,14 +136,13 @@ npx wrangler kv namespace create KV
 # use ssl
 ### use cf ssl
 ```bash
-export ssl_certificate_key=/mnt/data/secret/cf/ssl.key
-export ssl_certificate=/mnt/data/secret/cf/ssl.crt
 
+
+export ssl_certificate_key=cert/private.pem; export ssl_certificate=./cert/certificate.pem ;npx wrangler pages dev --local-protocol http --https-key-path $ssl_certificate_key --https-cert-path $ssl_certificate --port 8888 --ip 0.0.0.0
 
 # sudo chown -R $USER:$USER $ssl_certificate_key
 # sudo chown -R $USER:$USER $ssl_certificate
 
-npx wrangler pages dev --local-protocol http --https-key-path $ssl_certificate_key --https-cert-path $ssl_certificate --port 8888 --ip 0.0.0.0
 
 ```
 
@@ -145,4 +150,14 @@ npx wrangler pages dev --local-protocol http --https-key-path $ssl_certificate_k
 [slash best practice](https://developers.google.com/search/blog/2010/04/to-slash-or-not-to-slash)
 [redirect](https://developers.cloudflare.com/pages/configuration/redirects/)
 Redirects defined in the _redirects file are not applied to requests served by Pages Functions, even if the Function route matches the URL pattern. If your Pages application uses Functions, you must migrate any behaviors from the _redirects file to the code in the appropriate /functions route, or exclude the route from Functions.
+
+
+
+# r2
+```bash
+
+
+sudo -v ; curl https://rclone.org/install.sh | sudo bash
+
+```
 

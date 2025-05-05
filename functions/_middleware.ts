@@ -15,9 +15,15 @@ export async function preprocess(context) {
 
   const login = checkCookiesLoginexist(request.headers);
   console.log(`login: ${login}`);
+  if(!login){
+    if(! (url.pathname.startsWith("/nav") || url.pathname.startsWith("/login")) ){
+      console.log(`login: ${login} 404`);
 
+      return new Response("404",{status:404});
+    }
+  }
+  // print_request(context);
 
-  print_request(context);
   // Serve WASM with correct MIME
   // if (request.url.endsWith('.wasm')) {
   //   const asset = await env.ASSETS.fetch(request);

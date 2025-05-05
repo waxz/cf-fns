@@ -1,0 +1,40 @@
+[package]
+name = "sample"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# wasmtime = "32.0.0"
+# wit-bindgen = "0.41.0"
+
+[lib]
+crate-type = ['cdylib']
+name = "math"
+path = "src/lib/lib.rs"
+
+[[bin]]
+name = "wasi-test"
+path = "src/bin/main.rs"
+
+[profile.release]
+opt-level = "z"
+lto = true
+# codegen-units = 1
+
+# [package.metadata.component]
+# target = { path = "wit/host.wit" }
+# [target.wasm32-wasip1-threads]
+# rustflags = [
+#   "-C", "target-feature=+atomics,+bulk-memory,+mutable-globals",
+# ]
+
+# [target.wasm32-wasip1-threads]
+# runner = "wasmtime run --wasm-features=threads --wasi-modules=experimental-wasi-threads"
+# rustflags = [
+#   "-C", "target-feature=+atomics,+bulk-memory,+mutable-globals",
+# ]
+
+# [target.'cfg(target_arch = "wasm32")']
+# runner = "wasmtime run --wasm-features threads"

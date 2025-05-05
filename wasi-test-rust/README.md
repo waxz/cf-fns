@@ -41,7 +41,6 @@ wasmtime run --dir=. --dir=.::/tmp target/$TARGET/release/wasi-test.wasm test.tx
 # wasm-tools component wit ./target/$TARGET/release/math.wasm 
 
 wasmtime --invoke multiply ./target/$TARGET/release/math.wasm 3 3 4
-wasmtime --invoke 'multiply(3,4,4)' ./target/$TARGET/release/math.wasm
 
 
 ```

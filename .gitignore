@@ -4,3 +4,4 @@ dist
 .parcel-cache
 .DS_Store
 .wrangler
+*rust/target*

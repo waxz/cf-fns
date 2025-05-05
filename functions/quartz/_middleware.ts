@@ -9,14 +9,6 @@ function getFileExtensionFromUrl(url) {
 
 export async function preprocess(context) {
   const { request, env } = context;
-  const url = new URL(request.url);
-  console.log(`quartz recieve: ${url}`)
-  if (url.pathname === "/quartz") {
-    var new_url = url;
-    new_url.pathname = "/quartz/";
-    return Response.redirect(new_url, 301);
-  }
-
 
   // const ext = getFileExtensionFromUrl(request.url);
   // if (ext == "css" || ext == "png" || ext == "js" || ext == "json") {
@@ -27,7 +19,6 @@ export async function preprocess(context) {
 
   // }
 
-  return context.next();
   // fallback for other requests
   return env.ASSETS.fetch(request);
 }

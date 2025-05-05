@@ -1,8 +1,8 @@
 import { GlobeInstance } from "globe.gl";
-import { emitArc } from "./globe/emitArc";
-import { initialiseGlobe } from "./globe/globe";
-import { getOwnCoordinates } from "./httpServices/coordinates";
-import { getDistanceBetween } from "./httpServices/distance";
+import { emitArc } from "../globe/emitArc";
+import { initialiseGlobe } from "../globe/globe";
+import { getOwnCoordinates } from "../httpServices/coordinates";
+import { getDistanceBetween } from "../httpServices/distance";
 
 
 window.addEventListener('DOMContentLoaded', () => {

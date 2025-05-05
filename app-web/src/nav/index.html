@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>cf proxy</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <script>
+            //https://stackoverflow.com/questions/179355/clearing-all-cookies-with-javascript
+            function deleteAllcookies(){
+                console.log("deleteAllcookies");
+                document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
+            }
+            function logout(){
+                console.log("logout");
+
+                deleteAllcookies();
+
+            }
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+              }
+
+            var current_url = new URL(document.URL);
+
+              
+        </script>
+    </head>
+    <body>
+        <p > 
+            <a href="/login"> Login</a> 
+            <button onclick="logout()">Logout</button>
+        </p>
+        <p > 
+            <a href="/quartz"> Quartz</a> 
+        </p>
+    </body>
+</html>

@@ -1,11 +1,23 @@
+import {print_request} from "../src/utils/print_request";
+import { checkCookiesLoginexist } from "./login/auth";
+
+async function errorHandling(context) {
+  try {
+    return await context.next();
+  } catch (err) {
+    return new Response(`${err.message}\n${err.stack}`, { status: 500 });
+  }
+}
+
 export async function preprocess(context) {
   const { request, env } = context;
   const url = new URL(request.url);
 
+  const login = checkCookiesLoginexist(request.headers);
+  console.log(`login: ${login}`);
 
 
-  console.log(`main recieve url: ${url}`);
-  console.log(`main recieve headers: ${JSON.stringify(request.headers)}`);
+  print_request(context);
   // Serve WASM with correct MIME
   // if (request.url.endsWith('.wasm')) {
   //   const asset = await env.ASSETS.fetch(request);
@@ -24,4 +36,4 @@ export async function preprocess(context) {
 }
 
 
-export const onRequest = [preprocess];
+export const onRequest = [errorHandling, preprocess];

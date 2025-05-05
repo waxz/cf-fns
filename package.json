@@ -6,6 +6,7 @@
     "dev": "nodemon --watch app-web/src --ext \"html,scss,js,mjs,ts,json\" -x \"yarn web && yarn quartz && cp -r ./app-rust/pkg/ ./public/dist && npx wrangler pages dev public/dist \"",
     "web": "rm -rf public/dist && parcel build app-web/src/*/*.html --dist-dir public/dist",
     "rust": "cd app-rust && mkdir -p ./pkg/ && rm -r ./pkg/ && wasm-pack build -d ./pkg/node && wasm-pack build --target web -d ./pkg/web && wasm-pack build --target no-modules -d ./pkg/no-modules && wasm-pack build  --target bundler -d ./pkg/bundler",
+    "wasi": "cd wasi-test-rust &&cargo build --release --target wasm32-wasip1",
     "lint": "eslint .",
     "serve": "export ssl_certificate_key=cert/private.pem; export ssl_certificate=./cert/certificate.pem ;npx wrangler pages dev --local-protocol http --https-key-path $ssl_certificate_key --https-cert-path $ssl_certificate --port 8888 --ip 0.0.0.0",
     "publish:to-pages": "yarn web && npx wrangler pages publish public/dist",

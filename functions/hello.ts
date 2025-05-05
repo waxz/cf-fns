@@ -60,6 +60,7 @@ interface Env {
 //wasi
 import { WASI } from '@cloudflare/workers-wasi';
 import mywasm from '../wasi-test-rust/target/wasm32-wasip1/release/wasi-test.wasm';
+import mywasm_func from '../wasi-test-rust/target/wasm32-wasip1/release/math.wasm';
 
 
 export const onRequest: PagesFunction<Env> = async (context) => {
@@ -82,6 +83,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const instance = new WebAssembly.Instance(mywasm, {
       wasi_snapshot_preview1: wasi.wasiImport,
     });
+    const instance_func = new WebAssembly.Instance(mywasm_func, {
+      wasi_snapshot_preview1: wasi.wasiImport,
+    });
+    
+
 
     // Keep our worker alive until the WASM has finished executing.
     const promise = wasi.start(instance)

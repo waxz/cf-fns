@@ -8,6 +8,7 @@ edition = "2018"
 [dependencies]
 # wasmtime = "32.0.0"
 # wit-bindgen = "0.41.0"
+wasm-bindgen = { version = "0.2.99" }
 
 [lib]
 crate-type = ['cdylib']
@@ -38,3 +39,8 @@ lto = true
 
 # [target.'cfg(target_arch = "wasm32")']
 # runner = "wasmtime run --wasm-features threads"
+# [features]
+# default = []
+# atomics = ["wasm-bindgen/atomics"]
+# bulk-memory = ["wasm-bindgen/bulk-memory"]
+# threads = ["wasm-bindgen/threads"]

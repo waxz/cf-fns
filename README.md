@@ -165,4 +165,6 @@ sudo -v ; curl https://rclone.org/install.sh | sudo bash
 # D1
 ```bash
 npx wrangler d1 execute D1 --file ./create.sql --remote
+npx wrangler d1 execute D1 --command="SELECT * FROM logs;" --remote
+npx wrangler d1 execute D1 --remote --command="SELECT name FROM sqlite_master WHERE type='table';"
 ```

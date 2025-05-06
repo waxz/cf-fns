@@ -6,8 +6,9 @@ pages_build_output_dir = "./public/dist"
 enabled = true
 
 [[d1_databases]]
-binding = "D1"
-database_id="a648975e-5c61-4e67-8e25-5fc9bbbb86d6"
+binding = "DB"
+database_name = "D1"
+database_id = "61e72254-2756-4ee8-a4e4-7a270a06e48a"
 
 [[kv_namespaces]]
 binding = "KV"

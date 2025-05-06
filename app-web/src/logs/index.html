@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cloudflare Pages Function Logs</title>
+  <style>
+    body { font-family: sans-serif; }
+    .log-entry { margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    .timestamp { font-size: 0.8em; color: #777; }
+    .message { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Cloudflare Pages Function Logs</h1>
+  <div id="log-container">
+    </div>
+
+  <script>
+    async function fetchLogs() {
+      try {
+        const response = await fetch('/api/logs');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const logs = await response.json();
+        const logContainer = document.getElementById('log-container');
+        logContainer.innerHTML = ''; // Clear previous logs
+
+        logs.forEach(log => {
+          const logEntry = document.createElement('div');
+          logEntry.classList.add('log-entry');
+
+          const timestamp = document.createElement('div');
+          timestamp.classList.add('timestamp');
+          timestamp.textContent = new Date(log.timestamp).toLocaleString();
+
+          const message = document.createElement('div');
+          message.classList.add('message');
+          message.textContent = log.message;
+
+          logEntry.appendChild(timestamp);
+          logEntry.appendChild(message);
+          logContainer.appendChild(logEntry);
+        });
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        const logContainer = document.getElementById('log-container');
+        logContainer.textContent = 'Failed to load logs.';
+      }
+    }
+
+    // Fetch logs when the page loads
+    fetchLogs();
+
+    // Optionally, refresh logs periodically (e.g., every 5 seconds)
+    // setInterval(fetchLogs, 5000);
+  </script>
+</body>
+</html>

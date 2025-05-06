@@ -55,6 +55,7 @@ let GFWLIST_PTR;
 
 interface Env {
   KV: KVNamespace;
+  DB:D1Database;
 }
 
 //wasi
@@ -95,8 +96,38 @@ async function writeStringToStream(data, writableStream) {
 
 export const onRequest: PagesFunction<Env> = async (context) => {
 
-  const {request,env} = context;
+  const {request,env,waitUntil} = context;
  
+
+
+  const originalConsoleLog = console.log;
+
+  console.log = (...args) => {
+    originalConsoleLog(...args);
+    // const logMessage = args.join(' ');
+    const logMessage = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+    originalConsoleLog("Attempting to save log:", logMessage); // Debugging log
+    waitUntil(saveLogToD1(env.DB, logMessage)) ;
+  };
+
+  async function saveLogToD1(database, message) {
+    originalConsoleLog("saveLogToD1 called with:", message);
+    try {
+      const result = await database
+        .prepare("INSERT INTO logs (timestamp, message) VALUES (?, ?)")
+        .bind(Date.now(), message)
+        .run();
+      originalConsoleLog("Log saved to D1:", message, `Success: ${result.success}`);
+      if (!result.success) {
+        originalConsoleLog("D1 Insert Failed (No Exception):", JSON.stringify(result));
+      }
+    } catch (e) {
+      originalConsoleLog("Error saving log to D1:", e);
+    }
+  }
+
+  const myData = { name: 'John', age: 30 };
+console.log("User data:", JSON.stringify(myData));
 
 
   {
@@ -157,6 +188,10 @@ writeStringToStream("hello stdin from js", stdinStream.writable)
       }
       // return result
       console.log(result);
+
+        // Restore the original console.log after the request is handled (optional, but good practice)
+        console.log = originalConsoleLog;
+
 
       return new Response(result.stdout);
     } catch (e: any) {

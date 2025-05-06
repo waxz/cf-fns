@@ -4,7 +4,7 @@ use std::fs;
 use std::io::{Read, Write}; 
 #[no_mangle]
 use std::error::Error;
-
+use std::io::{self, BufRead};
 use ureq::tls::TlsConfig;
 use ureq::{config::Config, Agent, Proxy};
 
@@ -77,6 +77,28 @@ fn main() -> Result<(), Box<dyn Error>>{
 
     }
 
+    //env
+
+    if let  Ok(pwd) = std::env::current_dir(){
+        println!("hello wasi pwd :{:?} ",pwd);
+    }
+
+    //stdin
+    println!("hello stdin");
+
+    let stdin = io::stdin();
+    for line in stdin.lock().lines() {
+        println!("{}", line.unwrap());
+    }
+
+    // env
+    let HOME = env!("HOME", "$HOME is not set");
+    println!("HOME is set to {}", HOME);
+    let env_name = "PROJECT_NAME";
+    match env::var(env_name) {
+        Ok(v) => println!("{}: {}",env_name, v),
+        Err(e) => println!("${} is not set ({})", env_name, e)
+    }
 
     println!("hello wasi");
     let args: Vec<String> = env::args().collect();

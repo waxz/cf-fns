@@ -62,6 +62,36 @@ import { WASI } from '@cloudflare/workers-wasi';
 import mywasm from '../wasi-test-rust/target/wasm32-wasip1/release/wasi-test.wasm';
 import mywasm_func from '../wasi-test-rust/target/wasm32-wasip1/release/math.wasm';
 
+function writeArrayToStream(array, writableStream) {
+  
+  const writer = writableStream.getWriter();
+  
+  array.forEach(chunk => writer.write(chunk).catch(() => {}));
+  
+  
+  
+  return writer.close();
+  
+  }
+async function writeStringToStream(data, writableStream) {
+  const encoder = new TextEncoder();
+  const array = encoder.encode(data);
+  const writer = writableStream.getWriter();
+
+  try {
+    for (const chunk of array) {
+      await writer.write(Uint8Array.of(chunk)); // Ensure it's a Uint8Array
+    }
+    await writer.close();
+    console.log('All done writing to stream!');
+  } catch (e) {
+    console.error('Error writing to stream:', e);
+    throw e; // Re-throw the error to be caught by the caller
+  } finally {
+    // Ensure the writer is always released
+    writer.releaseLock();
+  }
+}
 
 export const onRequest: PagesFunction<Env> = async (context) => {
 
@@ -72,7 +102,13 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     //https://github.com/cloudflare/workers-wasi/blob/main/src/index.ts
     const stdout = new TransformStream();
     const stderr = new TransformStream(); // Create a TransformStream for stderr
-    
+    const stdinStream = new TransformStream();
+
+writeStringToStream("hello stdin from js", stdinStream.writable)
+
+.then(() => console.log('All done!'))
+
+.catch(e => console.error('Error with the stream: ' + e));
     const wasi = new WASI({
       args: ["write",'/tmp/a.txt',"hello https://github.com/cloudflare/workers-wasi/blob/main/src/index.ts"],
       // args: ["read",'/tmp/a.txt',"data"],
@@ -84,7 +120,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         '/tmp/my_file.txt': 'This is the content of my file.',
         '/tmp/another_file.bin': new Uint8Array([1, 2, 3]), // Binary data
       },
-      stdin: request.body,
+      env:{
+        PROJECT_NAME: "cf"
+
+      },
+      stdin: stdinStream.readable,
       stdout: stdout.writable,
       stderr: stderr.writable, // Assign stderr's writable stream
     });

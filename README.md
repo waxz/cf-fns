@@ -162,3 +162,7 @@ sudo -v ; curl https://rclone.org/install.sh | sudo bash
 
 ```
 
+# D1
+```bash
+npx wrangler d1 execute D1 --file ./create.sql --remote
+```

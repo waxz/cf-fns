@@ -10,8 +10,14 @@ edition = "2018"
 # wit-bindgen = "0.41.0"
 wasm-bindgen = { version = "0.2.99" }
 # reqwest = {version ="0.12.15",  features = ["blocking"] }
+flume = "0.11"
+burn = {version = "0.16.0",default-features = false, features = ["ndarray"] }
+# async-channel = "2.3"
 
-ureq = "3.0.11"
+# ureq = "3.0.11"
+
+# [patch.crates-io]
+# async-channel = "2.3.1" 
 
 [lib]
 crate-type = ['cdylib']
@@ -26,6 +32,7 @@ path = "src/bin/main.rs"
 opt-level = "z"
 lto = true
 # codegen-units = 1
+
 
 # [package.metadata.component]
 # target = { path = "wit/host.wit" }

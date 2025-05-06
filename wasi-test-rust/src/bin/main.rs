@@ -5,11 +5,21 @@ use std::io::{Read, Write};
 #[no_mangle]
 use std::error::Error;
 use std::io::{self, BufRead};
-use ureq::tls::TlsConfig;
-use ureq::{config::Config, Agent, Proxy};
+// use ureq::tls::TlsConfig;
+// use ureq::{config::Config, Agent, Proxy};
 
 // Use this example with something like mitmproxy
 // $ mitmproxy --listen-port 8080
+use burn::tensor;
+// use burn::backend::NdArray;
+
+// Type alias for the backend to use.
+// type Backend = NdArray;
+
+
+fn run_burn(){
+
+}
 
 fn list_path(path:&str){
     println!("list_path: {}", path);

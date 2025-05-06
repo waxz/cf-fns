@@ -5,3 +5,5 @@ dist
 .DS_Store
 .wrangler
 *rust/target*
+yarn.lock
+wasi-test-rust/Cargo.lock

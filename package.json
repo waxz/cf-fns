@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@cloudflare/workers-wasi": "^0.0.5",
-    "globe.gl": "^2.27.1"
+    "globe.gl": "^2.27.1",
+    "cloudflare":"4.2.0"
   }
 }

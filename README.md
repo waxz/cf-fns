@@ -111,6 +111,7 @@ npx wrangler pages deploy
 Get pages log
 ```bash
 npx wrangler pages deployment tail
+npx wrangler pages deployment tail --project-name pages-fns-with-wasm-demo
 ```
 
 test

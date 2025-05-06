@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Functions : powered by cloudflare</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <script>
+            //https://stackoverflow.com/questions/179355/clearing-all-cookies-with-javascript
+            function deleteAllcookies(){
+                console.log("deleteAllcookies");
+                document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
+            }
+            function logout(){
+                console.log("logout");
+
+                deleteAllcookies();
+
+            }
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            function updateSearchParams(k,v){
+                var searchParams = new URLSearchParams(window.location.search);
+                if (v != ''){
+                    searchParams.set(k, v);
+
+                }else{
+                    searchParams.delete(k);
+                }
+                window.location.search = searchParams.toString();
+            }
+ 
+
+            var current_url = new URL(document.URL);
+
+              
+        </script>
+    </head>
+    <body>
+        <p > 
+            <button onclick='updateSearchParams("api","client.pages.projects.get");'> client.pages.projects.get</button> 
+        </p>
+        <p > 
+            <button onclick='updateSearchParams("api","client.pages.projects.list");'> client.pages.projects.list</button> 
+        </p>
+        
+        <p > 
+            <button onclick='updateSearchParams("api","client.pages.projects.deployments.get");'> client.pages.projects.deployments.get</button> 
+        </p>
+        <p > 
+            <button onclick='updateSearchParams("api","client.pages.projects.deployments.list");'> client.pages.projects.deployments.list</button> 
+        </p>
+        
+        <p > 
+            <button onclick='updateSearchParams("api","client.pages.projects.deployments.history.logs.get");'> client.pages.projects.deployments.history.logs.get</button> 
+        </p>       
+    </body>
+</html>

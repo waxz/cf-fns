@@ -2,7 +2,8 @@
 name = "pages-fns-with-wasm-demo"
 compatibility_date = "2025-04-27"
 pages_build_output_dir = "./public/dist"
-
+[observability]
+enabled = true
 [[kv_namespaces]]
 binding = "KV"
 id = "9a1ad11316c9444d902518c863629fa4"

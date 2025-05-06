@@ -11,16 +11,69 @@ use ureq::{config::Config, Agent, Proxy};
 // Use this example with something like mitmproxy
 // $ mitmproxy --listen-port 8080
 
+fn list_path(path:&str){
+    println!("list_path: {}", path);
+    let paths = fs::read_dir(path).unwrap();
+
+    for path in paths {
+        println!("Name: {}", path.unwrap().path().display())
+    }
+}
+
+fn read(path: &str) -> Result<(), Box<dyn Error>>{
+    println!("read: {}", path);
+
+    let mut input_file = match fs::File::open(path) {
+        Ok(file) => file,
+        Err(e) => {
+            println!("open {path} err : {e}");
+            return  Ok(());
+        } // Return error code -1 for file open error
+    };
+
+    let mut contents = Vec::new();
+    if let Err(e) = input_file.read_to_end(&mut contents) {
+        println!("read_to_end {path} err: {e}");
+        return Ok(()); // Return error code -2 for read error
+    }
+    let contents = String::from_utf8(contents);
+
+    println!("{path} contents= {:?}", &contents);
+      Ok(())
+
+}
+fn write(path: &str, contents :& str) -> Result<(), Box<dyn Error>>{
+    println!("write: {path}, {contents}");
+
+    let mut input_file = match fs::File::create(path) {
+        Ok(file) => file,
+        Err(e) => {
+            println!("open {path} err : {e}");
+            return  Ok(());
+        } // Return error code -1 for file open error
+    };
+
+ 
+    // let contents = String::from_utf8(contents);
+    if let Err(e) = input_file.write_all(contents.as_bytes()) {
+        println!("write_all {path} err: {e}");
+        return Ok(()); // Return error code -2 for read error
+    }
+      Ok(())
+
+}
+
 fn main() -> Result<(), Box<dyn Error>>{
 
-    let url = "http://example.com";
     {
-        let body: String = ureq::get(url)
-    .header("Example-Header", "header value")
-    .call()?
-    .body_mut()
-    .read_to_string()?;
-println!("body: {:?}", body);
+//         let url = "http://example.com";
+
+//         let body: String = ureq::get(url)
+//     .header("Example-Header", "header value")
+//     .call()?
+//     .body_mut()
+//     .read_to_string()?;
+// println!("body: {:?}", body);
 
     }
 
@@ -28,6 +81,21 @@ println!("body: {:?}", body);
     println!("hello wasi");
     let args: Vec<String> = env::args().collect();
     println!("argc = {} , argv = {:?}", args.len(), &args);
+
+    
+    if(args.len() > 1){
+        if(args[0] == "ls"){
+            list_path(args[1].as_str());
+        }
+        if(args[0] == "read"){
+            read(args[1].as_str());
+        }
+        if(args[0] == "write"){
+            write(args[1].as_str(), args[2].as_str());
+            read(args[1].as_str());
+        }
+    }
+
 
     let output_str = "/tmp/stdout.txt";
 
@@ -58,6 +126,8 @@ println!("body: {:?}", body);
         println!("read_to_end err");
         return Ok(()); // Return error code -2 for read error
     }
+    let contents = String::from_utf8(contents);
+
     println!("input_file contents= {:?}", &contents);
     return Ok(())
 }

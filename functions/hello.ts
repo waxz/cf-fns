@@ -69,11 +69,21 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   {
 
+    //https://github.com/cloudflare/workers-wasi/blob/main/src/index.ts
     const stdout = new TransformStream();
     const stderr = new TransformStream(); // Create a TransformStream for stderr
     
     const wasi = new WASI({
-      args: [1,2],
+      args: ["write",'/tmp/a.txt',"hello https://github.com/cloudflare/workers-wasi/blob/main/src/index.ts"],
+      // args: ["read",'/tmp/a.txt',"data"],
+
+      // preopens: { '/tmp': '/sandbox_data' },
+      preopens:['/tmp']  ,
+
+      fs: {
+        '/tmp/my_file.txt': 'This is the content of my file.',
+        '/tmp/another_file.bin': new Uint8Array([1, 2, 3]), // Binary data
+      },
       stdin: request.body,
       stdout: stdout.writable,
       stderr: stderr.writable, // Assign stderr's writable stream

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>cf proxy</title>
+        <title>Functions : powered by cloudflare</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <script>
@@ -11,7 +11,7 @@
 
             var current_url = new URL(document.URL);
 
-            var new_url = current_url.origin + "/nav"  ; //current_url.pathname.split("/")[1];
+            var new_url = current_url.origin + "/"  ; //current_url.pathname.split("/")[1];
 
             async function redirect(url, s) {
 
@@ -32,7 +32,7 @@
     </head>
     <body>
         <div id="info">
-            Login {login_status}! Redirect to <a href="/nav">/nav</a> after <a id="redirect_counter">3</a> seconds...
+            Login {login_status}! Redirect to <a href="/">homepage</a> after <a id="redirect_counter">3</a> seconds...
         </div>
     </body>
 </html>

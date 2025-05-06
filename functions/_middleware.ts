@@ -16,7 +16,7 @@ export async function preprocess(context) {
   const login = checkCookiesLoginexist(request.headers);
   console.log(`login: ${login}`);
   if(!login){
-    if(! (url.pathname.startsWith("/nav") || url.pathname.startsWith("/login")) ){
+    if(! (url.pathname== "/"  || url.pathname.startsWith("/login")) ){
       console.log(`login: ${login} 404`);
 
       return new Response("404",{status:404});

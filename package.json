@@ -4,7 +4,7 @@
   "description": "A demo app that exemplifies wasm module imports in Pages Functions",
   "scripts": {
     "dev": "nodemon --watch app-web/src --ext \"html,scss,js,mjs,ts,json\" -x \"yarn web && yarn quartz && cp -r ./app-rust/pkg/ ./public/dist && npx wrangler pages dev public/dist \"",
-    "web": "rm -rf public/dist && parcel build app-web/src/*/*.html --dist-dir public/dist",
+    "web": "rm -rf public/dist && parcel build app-web/src/*.html app-web/src/*/*.html --dist-dir public/dist",
     "rust": "cd app-rust && mkdir -p ./pkg/ && rm -r ./pkg/ && wasm-pack build -d ./pkg/node && wasm-pack build --target web -d ./pkg/web && wasm-pack build --target no-modules -d ./pkg/no-modules && wasm-pack build  --target bundler -d ./pkg/bundler",
     "wasi": "cd wasi-test-rust &&cargo build --release --target wasm32-wasip1",
     "lint": "eslint .",

@@ -4,6 +4,11 @@ compatibility_date = "2025-04-27"
 pages_build_output_dir = "./public/dist"
 [observability]
 enabled = true
+
+[[d1_databases]]
+binding = "D1"
+database_id="a648975e-5c61-4e67-8e25-5fc9bbbb86d6"
+
 [[kv_namespaces]]
 binding = "KV"
 id = "9a1ad11316c9444d902518c863629fa4"

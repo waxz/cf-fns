@@ -11,7 +11,9 @@ edition = "2018"
 wasm-bindgen = { version = "0.2.99" }
 # reqwest = {version ="0.12.15",  features = ["blocking"] }
 flume = "0.11"
-burn = {version = "0.16.0",default-features = false, features = ["ndarray"] }
+tokio = { version = "1.44.2", default-features = false, features = ["rt", "macros"] }
+burn = {version = "0.16.0",default-features = false, features = ["ndarray","autodiff"] }
+burn-vision = {version = "0.17.0",default-features = false, features =[] }
 # async-channel = "2.3"
 
 # ureq = "3.0.11"

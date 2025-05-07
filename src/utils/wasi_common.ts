@@ -5,10 +5,15 @@ export interface ExecOptions {
   asyncify: boolean
   env?: Environment
   fs: _FS
-  // moduleName: string
+  moduleName: string,
+  presist: Boolean,
   preopens: string[]
   returnOnExit: boolean
 }
+
+
+const WasiInstanceList = new Map<string, WebAssembly.Instance>();
+
 
 export interface ExecResult {
   stdout: string
@@ -18,7 +23,7 @@ export interface ExecResult {
 export const run = async (
   options: ExecOptions,
   wasm: WebAssembly.Module,
-  func:Function
+  func: Function
 ): Promise<ExecResult> => {
 
   const stdout = new TransformStream()
@@ -37,22 +42,36 @@ export const run = async (
   const importObject = {
     wasi_snapshot_preview1: wasi.wasiImport,
   };
+  if (options.presist) {
 
-  const instance = new WebAssembly.Instance(wasm,importObject );
+  }
+  var update = false;
+  const instance = options.presist ? (WasiInstanceList.has(options.moduleName) ? WasiInstanceList.get(options.moduleName) : (update = true ) && new WebAssembly.Instance(wasm, importObject) ):new WebAssembly.Instance(wasm, importObject);
+
+  if(update){
+    WasiInstanceList.set(options.moduleName, instance);
+
+    console.log("======WasiInstanceList");
+    for(const [key, value] of WasiInstanceList) {
+      console.log(key, value);
+  }
+  }
+
+  new WebAssembly.Instance(wasm, importObject);
 
   console.log("wasi start run func");
-  
+
   const status = await func(instance);
   console.log(`wasi finish run func, status :${status}`);
 
- 
 
-console.log("Promise.all");
 
-const [stdoutStr, stderrStr] = await withTimeout(Promise.all([
-  collectStream(stdout.readable),
-  collectStream(stderr.readable)
-]), 1); 
+  console.log("Promise.all");
+
+  const [stdoutStr, stderrStr] = await withTimeout(Promise.all([
+    collectStream(stdout.readable),
+    collectStream(stderr.readable)
+  ]), 1);
 
 
   console.log("Promise.all finish");
@@ -95,11 +114,11 @@ export const exec = async (
   const importObject = {
     wasi_snapshot_preview1: wasi.wasiImport,
   };
-  const instance = new WebAssembly.Instance(wasm,importObject );
+  const instance = new WebAssembly.Instance(wasm, importObject);
   // const instance = await WebAssembly.instantiate(wasmModule, importObject);
   const promise = wasi.start(instance);
 
-  
+
 
 
   const streams = await Promise.all([

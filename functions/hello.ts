@@ -28,29 +28,7 @@ const collectStream = async (stream: ReadableStream): Promise<string> => {
 
   return new TextDecoder().decode(buffer)
 }
-
-// const wasi = new WASI();
-
-
-// const wasi = new WASI({
-//   args: [],
-//   env: {},
-//   bindings: {
-//     // You can add custom bindings like console, fs, etc. if needed.
-//     console: {
-//       log: (...args) => console.log(...args),
-//     },
-//   },
-// });
-// const instance = new WebAssembly.Instance(mywasm, {wasi_snapshot_preview1: wasi.wasiImport});
-// await wasi.start(instance);
-
-
-// const instance = await WebAssembly.instantiate(mywasm, {
-//   ...wasi.getImportObject(),
-// });
-
-// wasi.start(instance);
+ 
 
 
 
@@ -64,17 +42,17 @@ interface Env {
 
 //wasi
 // import { WASI } from '@cloudflare/workers-wasi';
-import { Environment, WASI, _FS } from '@cloudflare/workers-wasi';
+// import { Environment, WASI } from '@cloudflare/workers-wasi';
 
 
-import mywasm from '../wasi-test-rust/target/wasm32-wasip1/release/wasi-test.async.wasm';
-import mywasm_func from '../wasi-test-rust/target/wasm32-wasip1/release/my_rust_function.wasm';
+import {wasi_test} from "../src/resource";
 
 
-import * as child from 'node:child_process'
-import * as fs from 'node:fs'
-import { cwd } from 'node:process'
-import path from 'path/posix'
+// import * as child from 'node:child_process'
+// import * as fs from 'node:fs'
+// import { cwd } from 'node:process'
+// import path from 'path/posix'
+
 import { ExecOptions, exec, writeStringToStream } from '../src/utils/wasi_common';
 
 
@@ -126,7 +104,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     {
       
       const execOptions: ExecOptions = {
-        asyncify: true,
+        asyncify: false,
         args: ["write", '/tmp/a.txt', "hello https://github.com/cloudflare/workers-wasi/blob/main/src/index.ts"],
         // args: ["read",'/tmp/a.txt',"data"],
   
@@ -146,7 +124,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
 
       try {
-        const result = await exec(execOptions,mywasm,stdin.readable );
+        const result = await exec(execOptions,wasi_test,stdin.readable );
 
         // return result
         console.log(result);

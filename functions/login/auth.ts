@@ -2,7 +2,7 @@
 
 import { encode_sha256 } from "../../src/utils/encode";
 
-import html from "../../public/dist/login/redirect.html";
+import {login_redirect_html} from "../../src/resource"
 
 import {template_replace} from "../../src/utils/template_replace";
 
@@ -90,6 +90,12 @@ export async function onRequestPost(context) {
   headers.set("Strict-Transport-Security","max-age=63072000; includeSubDomains; preload" );
   headers.set("content-type","text/html;charset=UTF-8");
 
+  // prevent caching redirect
+  headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  headers.set('Pragma', 'no-cache');
+  headers.set('Expires', '0');
+
+
   if (form.hasOwnProperty("username") && form.hasOwnProperty("password")) {
     username = form["username"];
     password = form["password"];
@@ -115,7 +121,7 @@ export async function onRequestPost(context) {
     login_status: login_status,
   };
   
-  const resepond_html = template_replace(html,replacements);
+  const resepond_html = template_replace(login_redirect_html,replacements);
   console.log(resepond_html);
 
 

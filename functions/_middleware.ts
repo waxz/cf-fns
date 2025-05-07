@@ -1,4 +1,4 @@
-import {print_request} from "../src/utils/print_request";
+import { print_request } from "../src/utils/print_request";
 import { checkCookiesLoginexist } from "./login/auth";
 
 async function errorHandling(context) {
@@ -12,14 +12,23 @@ async function errorHandling(context) {
 export async function preprocess(context) {
   const { request, env } = context;
   const url = new URL(request.url);
+  console.log(`preprocess: ${url}`);
 
   const login = checkCookiesLoginexist(request.headers);
   console.log(`login: ${login}`);
-  if(!login){
-    if(! (url.pathname== "/"  || url.pathname.startsWith("/login")) ){
-      console.log(`login: ${login} 404`);
+  if (!login) {
 
-      return new Response("404",{status:404});
+  // prevent caching redirect
+    const headers = new Headers();
+    headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    headers.set('Pragma', 'no-cache');
+    headers.set('Expires', '0');
+
+    if (!(url.pathname == "/404" || url.pathname == "/" || url.pathname.startsWith("/login"))) {
+      const url_404 = url;
+      url_404.pathname = "/404";
+      headers.set('Location', url_404.toString());
+      return new Response('', { status: 307, headers: headers });
     }
   }
   // print_request(context);

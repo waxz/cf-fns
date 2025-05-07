@@ -1,5 +1,5 @@
 use std::env;
-use std::ffi::CString;
+// use std::ffi::CString;
 use std::fs;
 use std::io::{Read, Write}; 
 use std::error::Error;
@@ -9,9 +9,7 @@ use std::io::{self, BufRead};
 
 // Use this example with something like mitmproxy
 // $ mitmproxy --listen-port 8080
-use burn::{
-    tensor::Tensor
-};
+use burn::tensor::Tensor;
 // use burn::backend::NdArray;
 
 // Type alias for the backend to use.
@@ -38,9 +36,6 @@ impl<B: Backend> PositionWiseFeedForward<B> {
 
         self.linear_outer.forward(x)
     }
-}
-fn run_burn(){
-
 }
 
 fn list_path(path:&str){
@@ -212,15 +207,15 @@ fn main() -> Result<(), Box<dyn Error>>{
 
     
     if(args.len() > 1){
-        if(args[0] == "ls"){
+        if args[0] == "ls"{
             list_path(args[1].as_str());
         }
-        if(args[0] == "read"){
-            read(args[1].as_str());
+        if args[0] == "read"{
+            let _  = read(args[1].as_str());
         }
-        if(args[0] == "write"){
-            write(args[1].as_str(), args[2].as_str());
-            read(args[1].as_str());
+        if args[0] == "write"{
+            let _  =  write(args[1].as_str(), args[2].as_str());
+            let _  = read(args[1].as_str());
         }
     }
 

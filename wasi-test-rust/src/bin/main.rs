@@ -2,7 +2,6 @@ use std::env;
 use std::ffi::CString;
 use std::fs;
 use std::io::{Read, Write}; 
-#[no_mangle]
 use std::error::Error;
 use std::io::{self, BufRead};
 // use ureq::tls::TlsConfig;
@@ -95,8 +94,80 @@ fn write(path: &str, contents :& str) -> Result<(), Box<dyn Error>>{
       Ok(())
 
 }
+use std::fs::File;
 
+pub fn create_file(path: &str, content: &str) -> Result<(), Box<dyn Error>> {
+    println!("create_file: {path}, {content}");
+    let mut output = match fs::File::create(path) {
+        Ok(file) => file,
+        Err(e) => {
+            println!("create {path} err : {e}");
+            return  Ok(());
+        } // Return error code -1 for file open error
+    };
+    if let Err(e) = output.write_all(content.as_bytes()) {
+        println!("write_all {path} err: {e}");
+        return Ok(()); // Return error code -2 for read error
+    }
+  Ok(())
+}
+
+pub fn read_file(path: &str) -> String {
+  let mut f = File::open(path).unwrap();
+  let mut s = String::new();
+  match f.read_to_string(&mut s) {
+    Ok(_) => s,
+    Err(e) => e.to_string(),
+  }
+}
+
+pub fn del_file(path: &str) {
+  fs::remove_file(path).expect("Unable to delete");
+}
+pub fn print_stdin(){
+    println!("====stdin start");
+    let stdin = io::stdin();
+    for line in stdin.lock().lines() {
+        println!("{}", line.unwrap());
+    }
+    println!("====stdin end");
+
+}
+pub fn print_env() {
+  println!("The env vars are as follows.");
+  for (key, value) in env::vars() {
+    println!("{}: {}", key, value);
+  }
+
+  println!("The args are as follows.");
+  for argument in env::args() {
+    println!("{}", argument);
+  }
+}
+// use rand::prelude::*;
+// use std::random::random;
+// use rand::random;
+pub fn get_random_i32() -> i32 {
+  let x: i32 = rand::random();
+  return x;
+}
+
+//https://wasmedge.org/docs/develop/rust/os?_highlight=env#arguments-and-environment-variables
 fn main() -> Result<(), Box<dyn Error>>{
+
+    {
+        println!("Random number: {}", get_random_i32());
+        println!("This is from a main function");
+        print_env();
+        let filename = "/tmp/tmp.txt";
+        create_file(filename, "This is in a file");
+        
+        println!("File content is {}", read_file(filename));
+        del_file(filename);
+        print_stdin();
+        
+
+    }
 
     {
 //         let url = "http://example.com";
@@ -125,6 +196,8 @@ fn main() -> Result<(), Box<dyn Error>>{
     }
 
     // env
+    print_env();
+
     let HOME = env!("HOME", "$HOME is not set");
     println!("HOME is set to {}", HOME);
     let env_name = "PROJECT_NAME";

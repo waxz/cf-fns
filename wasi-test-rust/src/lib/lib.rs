@@ -9,3 +9,15 @@ use wasm_bindgen::prelude::*;
 pub fn greet(name: &str) -> String {
     format!("Hello, {}! This is Rust running in Workers WASI.", name)
 }
+
+use std::env;
+use std::fs::File;
+use std::io::{self, Read, Write};
+
+ 
+
+#[no_mangle]
+pub extern "C" fn run() {
+    println!("Hello from Rust WASI in Cloudflare Pages!");
+ 
+}

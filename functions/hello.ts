@@ -5,6 +5,10 @@ import { load_wasm } from "../src/utils/load_wasm_web.js";
 
 import { getGfwTextCached } from "../src/utils/gfw";
 
+// import * as fs from 'node:fs/promises'
+// import { ReadableStream } from 'node:stream/web'
+
+
 const collectStream = async (stream: ReadableStream): Promise<string> => {
   const chunks: Uint8Array[] = []
 
@@ -55,50 +59,28 @@ let GFWLIST_PTR;
 
 interface Env {
   KV: KVNamespace;
-  DB:D1Database;
+  DB: D1Database;
 }
 
 //wasi
-import { WASI } from '@cloudflare/workers-wasi';
-import mywasm from '../wasi-test-rust/target/wasm32-wasip1/release/wasi-test.wasm';
-import mywasm_func from '../wasi-test-rust/target/wasm32-wasip1/release/math.wasm';
+// import { WASI } from '@cloudflare/workers-wasi';
+import { Environment, WASI, _FS } from '@cloudflare/workers-wasi';
 
-function writeArrayToStream(array, writableStream) {
-  
-  const writer = writableStream.getWriter();
-  
-  array.forEach(chunk => writer.write(chunk).catch(() => {}));
-  
-  
-  
-  return writer.close();
-  
-  }
-async function writeStringToStream(data, writableStream) {
-  const encoder = new TextEncoder();
-  const array = encoder.encode(data);
-  const writer = writableStream.getWriter();
 
-  try {
-    for (const chunk of array) {
-      await writer.write(Uint8Array.of(chunk)); // Ensure it's a Uint8Array
-    }
-    await writer.close();
-    console.log('All done writing to stream!');
-  } catch (e) {
-    console.error('Error writing to stream:', e);
-    throw e; // Re-throw the error to be caught by the caller
-  } finally {
-    // Ensure the writer is always released
-    writer.releaseLock();
-  }
-}
+import mywasm from '../wasi-test-rust/target/wasm32-wasip1/release/wasi-test.async.wasm';
+import mywasm_func from '../wasi-test-rust/target/wasm32-wasip1/release/my_rust_function.wasm';
+
+
+import * as child from 'node:child_process'
+import * as fs from 'node:fs'
+import { cwd } from 'node:process'
+import path from 'path/posix'
+import { ExecOptions, exec, writeStringToStream } from '../src/utils/wasi_common';
+
 
 export const onRequest: PagesFunction<Env> = async (context) => {
 
-  const {request,env,waitUntil} = context;
- 
-
+  const { request, env, waitUntil } = context;
 
   const originalConsoleLog = console.log;
 
@@ -107,7 +89,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     // const logMessage = args.join(' ');
     const logMessage = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
     originalConsoleLog("Attempting to save log:", logMessage); // Debugging log
-    waitUntil(saveLogToD1(env.DB, logMessage)) ;
+    waitUntil(saveLogToD1(env.DB, logMessage));
   };
 
   async function saveLogToD1(database, message) {
@@ -127,81 +109,60 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   }
 
   const myData = { name: 'John', age: 30 };
-console.log("User data:", JSON.stringify(myData));
+  console.log("User data:", JSON.stringify(myData));
 
 
-  {
+  
 
     //https://github.com/cloudflare/workers-wasi/blob/main/src/index.ts
-    const stdout = new TransformStream();
-    const stderr = new TransformStream(); // Create a TransformStream for stderr
-    const stdinStream = new TransformStream();
+    const stdin = new TransformStream();
 
-writeStringToStream("hello stdin from js", stdinStream.writable)
-
-.then(() => console.log('All done!'))
-
-.catch(e => console.error('Error with the stream: ' + e));
-    const wasi = new WASI({
-      args: ["write",'/tmp/a.txt',"hello https://github.com/cloudflare/workers-wasi/blob/main/src/index.ts"],
-      // args: ["read",'/tmp/a.txt',"data"],
-
-      // preopens: { '/tmp': '/sandbox_data' },
-      preopens:['/tmp']  ,
-
-      fs: {
-        '/tmp/my_file.txt': 'This is the content of my file.',
-        '/tmp/another_file.bin': new Uint8Array([1, 2, 3]), // Binary data
-      },
-      env:{
-        PROJECT_NAME: "cf"
-
-      },
-      stdin: stdinStream.readable,
-      stdout: stdout.writable,
-      stderr: stderr.writable, // Assign stderr's writable stream
-    });
-
-    // Instantiate our WASM with our demo module and our configured WASI import.
-    const instance = new WebAssembly.Instance(mywasm, {
-      wasi_snapshot_preview1: wasi.wasiImport,
-    });
-    const instance_func = new WebAssembly.Instance(mywasm_func, {
-      wasi_snapshot_preview1: wasi.wasiImport,
-    });
-    
+    writeStringToStream("hello stdin from js", stdin.writable)
+      .then(() => console.log('All done!'))
+      .catch(e => console.error('Error with the stream: ' + e));
 
 
-    // Keep our worker alive until the WASM has finished executing.
-    const promise = wasi.start(instance)
 
-    const streams = await Promise.all([
-      collectStream(stdout.readable),
-      collectStream(stderr.readable),
-    ])
+    {
+      
+      const execOptions: ExecOptions = {
+        asyncify: true,
+        args: ["write", '/tmp/a.txt', "hello https://github.com/cloudflare/workers-wasi/blob/main/src/index.ts"],
+        // args: ["read",'/tmp/a.txt',"data"],
   
-    try {
-      const result = {
-        stdout: streams[0],
-        stderr: streams[1],
-        status: await promise,
+        // preopens: { '/tmp': '/sandbox_data' },
+        preopens: ['/tmp'],
+  
+        fs: {
+          '/tmp/my_file.txt': 'This is the content of my file.',
+          '/tmp/another_file.bin': new Uint8Array([1, 2, 3]), // Binary data
+        },
+        env: {
+          PROJECT_NAME: "cf"
+  
+        },
+        returnOnExit: false,
       }
-      // return result
-      console.log(result);
 
+
+      try {
+        const result = await exec(execOptions,mywasm,stdin.readable );
+
+        // return result
+        console.log(result);
+  
         // Restore the original console.log after the request is handled (optional, but good practice)
         console.log = originalConsoleLog;
+  
+  
+        return new Response(result.stdout);
+      } catch (e: any) {
+        e.message = `${e}`;
+        throw e
+      }
 
 
-      return new Response(result.stdout);
-    } catch (e: any) {
-      e.message = `${e}\n\nstdout:\n${streams[0]}\n\nstderr:\n${streams[1]}\n\n`
-      throw e
     }
-
-
-
-  }
 
 
   const gfwList = await getGfwTextCached(context, false);

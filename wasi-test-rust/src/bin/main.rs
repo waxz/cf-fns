@@ -1,11 +1,36 @@
 use std::env;
 // use std::ffi::CString;
-use std::fs;
-use std::io::{Read, Write}; 
 use std::error::Error;
+use std::fs;
 use std::io::{self, BufRead};
+use std::io::{Read, Write};
 // use ureq::tls::TlsConfig;
 // use ureq::{config::Config, Agent, Proxy};
+
+
+// share memory
+use std::slice;
+use std::ptr;
+
+static mut SHARED_BUFFER: [u8; 10240] = [0; 10240];
+
+#[no_mangle]
+pub extern "C" fn write_to_buffer() -> usize {
+    let message = b"Hello from Rust shared buffer!";
+    unsafe {
+        let len = message.len();
+        SHARED_BUFFER[..len].copy_from_slice(message);
+        len // Return length to JS
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn get_buffer_ptr() -> *const u8 {
+    unsafe { SHARED_BUFFER.as_ptr() }
+}
+
+
+
 
 // Use this example with something like mitmproxy
 // $ mitmproxy --listen-port 8080
@@ -38,7 +63,7 @@ impl<B: Backend> PositionWiseFeedForward<B> {
     }
 }
 
-fn list_path(path:&str){
+fn list_path(path: &str) {
     println!("list_path: {}", path);
     let paths = fs::read_dir(path).unwrap();
 
@@ -47,14 +72,14 @@ fn list_path(path:&str){
     }
 }
 
-fn read(path: &str) -> Result<(), Box<dyn Error>>{
+fn read(path: &str) -> Result<(), Box<dyn Error>> {
     println!("read: {}", path);
 
     let mut input_file = match fs::File::open(path) {
         Ok(file) => file,
         Err(e) => {
             println!("open {path} err : {e}");
-            return  Ok(());
+            return Ok(());
         } // Return error code -1 for file open error
     };
 
@@ -66,28 +91,25 @@ fn read(path: &str) -> Result<(), Box<dyn Error>>{
     let contents = String::from_utf8(contents);
 
     println!("{path} contents= {:?}", &contents);
-      Ok(())
-
+    Ok(())
 }
-fn write(path: &str, contents :& str) -> Result<(), Box<dyn Error>>{
+fn write(path: &str, contents: &str) -> Result<(), Box<dyn Error>> {
     println!("write: {path}, {contents}");
 
     let mut input_file = match fs::File::create(path) {
         Ok(file) => file,
         Err(e) => {
             println!("open {path} err : {e}");
-            return  Ok(());
+            return Ok(());
         } // Return error code -1 for file open error
     };
 
- 
     // let contents = String::from_utf8(contents);
     if let Err(e) = input_file.write_all(contents.as_bytes()) {
         println!("write_all {path} err: {e}");
         return Ok(()); // Return error code -2 for read error
     }
-      Ok(())
-
+    Ok(())
 }
 use std::fs::File;
 
@@ -97,90 +119,88 @@ pub fn create_file(path: &str, content: &str) -> Result<(), Box<dyn Error>> {
         Ok(file) => file,
         Err(e) => {
             println!("create {path} err : {e}");
-            return  Ok(());
+            return Ok(());
         } // Return error code -1 for file open error
     };
     if let Err(e) = output.write_all(content.as_bytes()) {
         println!("write_all {path} err: {e}");
         return Ok(()); // Return error code -2 for read error
     }
-  Ok(())
+    Ok(())
 }
 
 pub fn read_file(path: &str) -> String {
-  let mut f = File::open(path).unwrap();
-  let mut s = String::new();
-  match f.read_to_string(&mut s) {
-    Ok(_) => s,
-    Err(e) => e.to_string(),
-  }
+    let mut f = File::open(path).unwrap();
+    let mut s = String::new();
+    match f.read_to_string(&mut s) {
+        Ok(_) => s,
+        Err(e) => e.to_string(),
+    }
 }
 
 pub fn del_file(path: &str) {
-  fs::remove_file(path).expect("Unable to delete");
+    fs::remove_file(path).expect("Unable to delete");
 }
-pub fn print_stdin(){
+pub fn print_stdin() {
     println!("====stdin start");
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
         println!("{}", line.unwrap());
     }
     println!("====stdin end");
-
 }
 pub fn print_env() {
-  println!("The env vars are as follows.");
-  for (key, value) in env::vars() {
-    println!("{}: {}", key, value);
-  }
+    println!("The env vars are as follows.");
+    // Print all environment variables.
+    for (key, value) in std::env::vars_os() {
+        println!("{key:?}: {value:?}");
+    }
 
-  println!("The args are as follows.");
-  for argument in env::args() {
-    println!("{}", argument);
-  }
+    println!("The args are as follows.");
+    for argument in env::args() {
+        println!("{}", argument);
+    }
 }
 // use rand::prelude::*;
 // use std::random::random;
 // use rand::random;
 pub fn get_random_i32() -> i32 {
-  let x: i32 = rand::random();
-  return x;
+    let x: i32 = rand::random();
+    return x;
 }
 
 //https://wasmedge.org/docs/develop/rust/os?_highlight=env#arguments-and-environment-variables
-fn main() -> Result<(), Box<dyn Error>>{
-
+fn main() -> Result<(), Box<dyn Error>> {
     {
         println!("Random number: {}", get_random_i32());
         println!("This is from a main function");
         print_env();
         let filename = "/tmp/tmp.txt";
         create_file(filename, "This is in a file");
-        
+
         println!("File content is {}", read_file(filename));
         del_file(filename);
         print_stdin();
-        
 
+        let key = "wasi_output";
+        std::env::set_var(key, "wasi_output in wasi"); // Sets AAA to 123
+        if let Ok(pwd) = std::env::current_dir() {
+            println!("wasi run in pwd :{:?} ", pwd);
+        }
     }
 
     {
-//         let url = "http://example.com";
+        //         let url = "http://example.com";
 
-//         let body: String = ureq::get(url)
-//     .header("Example-Header", "header value")
-//     .call()?
-//     .body_mut()
-//     .read_to_string()?;
-// println!("body: {:?}", body);
-
+        //         let body: String = ureq::get(url)
+        //     .header("Example-Header", "header value")
+        //     .call()?
+        //     .body_mut()
+        //     .read_to_string()?;
+        // println!("body: {:?}", body);
     }
 
     //env
-
-    if let  Ok(pwd) = std::env::current_dir(){
-        println!("hello wasi pwd :{:?} ",pwd);
-    }
 
     //stdin
     println!("hello stdin");
@@ -197,28 +217,26 @@ fn main() -> Result<(), Box<dyn Error>>{
     println!("HOME is set to {}", HOME);
     let env_name = "PROJECT_NAME";
     match env::var(env_name) {
-        Ok(v) => println!("{}: {}",env_name, v),
-        Err(e) => println!("${} is not set ({})", env_name, e)
+        Ok(v) => println!("{}: {}", env_name, v),
+        Err(e) => println!("${} is not set ({})", env_name, e),
     }
 
     println!("hello wasi");
     let args: Vec<String> = env::args().collect();
     println!("argc = {} , argv = {:?}", args.len(), &args);
 
-    
-    if(args.len() > 1){
-        if args[0] == "ls"{
+    if (args.len() > 1) {
+        if args[0] == "ls" {
             list_path(args[1].as_str());
         }
-        if args[0] == "read"{
-            let _  = read(args[1].as_str());
+        if args[0] == "read" {
+            let _ = read(args[1].as_str());
         }
-        if args[0] == "write"{
-            let _  =  write(args[1].as_str(), args[2].as_str());
-            let _  = read(args[1].as_str());
+        if args[0] == "write" {
+            let _ = write(args[1].as_str(), args[2].as_str());
+            let _ = read(args[1].as_str());
         }
     }
-
 
     let output_str = "/tmp/stdout.txt";
 
@@ -234,14 +252,14 @@ fn main() -> Result<(), Box<dyn Error>>{
     if let Err(_) = output_file.write_all(contents.as_bytes()) {
         println!("output_file err");
 
-        return  Ok(()); // Return error code -4 for write error
+        return Ok(()); // Return error code -4 for write error
     }
 
     let mut input_file = match fs::File::open(output_str) {
         Ok(file) => file,
         Err(_) => {
             println!("open err");
-            return  Ok(());
+            return Ok(());
         } // Return error code -1 for file open error
     };
     let mut contents = Vec::new();
@@ -252,7 +270,7 @@ fn main() -> Result<(), Box<dyn Error>>{
     let contents = String::from_utf8(contents);
 
     println!("input_file contents= {:?}", &contents);
-    return Ok(())
+    return Ok(());
 }
 
 #[no_mangle]

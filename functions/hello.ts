@@ -9,26 +9,6 @@ import { getGfwTextCached } from "../src/utils/gfw";
 // import { ReadableStream } from 'node:stream/web'
 
 
-const collectStream = async (stream: ReadableStream): Promise<string> => {
-  const chunks: Uint8Array[] = []
-
-  // @ts-ignore
-  for await (const chunk of stream) {
-    chunks.push(chunk)
-  }
-
-  const size = chunks.reduce((acc, chunk) => acc + chunk.byteLength, 0)
-  const buffer = new Uint8Array(size)
-  let offset = 0
-
-  chunks.forEach((chunk) => {
-    buffer.set(chunk, offset)
-    offset += chunk.byteLength
-  })
-
-  return new TextDecoder().decode(buffer)
-}
- 
 
 
 
@@ -51,9 +31,10 @@ import {wasi_test} from "../src/resource";
 // import * as child from 'node:child_process'
 // import * as fs from 'node:fs'
 // import { cwd } from 'node:process'
+// import * as process from 'node:process';
 // import path from 'path/posix'
 
-import { ExecOptions, exec, writeStringToStream } from '../src/utils/wasi_common';
+import { ExecOptions, exec,run, writeStringToStream } from '../src/utils/wasi_common';
 
 
 export const onRequest: PagesFunction<Env> = async (context) => {
@@ -105,18 +86,19 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       
       const execOptions: ExecOptions = {
         asyncify: false,
-        args: ["write", '/tmp/a.txt', "hello https://github.com/cloudflare/workers-wasi/blob/main/src/index.ts"],
-        // args: ["read",'/tmp/a.txt',"data"],
+        // args: ["write", '/tmp/a.txt', "hello https://github.com/cloudflare/workers-wasi/blob/main/src/index.ts"],
+        args: ["read",'/index.html',"data"],
   
         // preopens: { '/tmp': '/sandbox_data' },
-        preopens: ['/tmp'],
+        preopens: ['/tmp','/'],
   
         fs: {
           '/tmp/my_file.txt': 'This is the content of my file.',
           '/tmp/another_file.bin': new Uint8Array([1, 2, 3]), // Binary data
         },
         env: {
-          PROJECT_NAME: "cf"
+          PROJECT_NAME: "cf",
+          wasi_output: "wasi_output from cf",
   
         },
         returnOnExit: false,
@@ -124,9 +106,47 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
 
       try {
-        const result = await exec(execOptions,wasi_test,stdin.readable );
+
+        const callback = async (instance: WebAssembly.Instance) : Promise<number> => {
+          console.log("run callback");
+          const { memory, _exit, write_to_buffer, get_buffer_ptr } = instance.exports;
+          {
+            const write_to_buffer_func = write_to_buffer as CallableFunction;
+            const get_buffer_ptr_func = get_buffer_ptr as CallableFunction;
+            const memory_array = memory as WebAssembly.Memory;
+        
+            // Call Rust function to write to buffer
+            const len = write_to_buffer_func();
+        
+            // Get pointer to buffer
+            const ptr = get_buffer_ptr_func();
+        
+            // Create a typed array view into the WASM memory
+            const bytes = new Uint8Array(memory_array.buffer, ptr, len);
+            const message = new TextDecoder().decode(bytes);
+        
+            console.log("Message from Rust buffer:", message);
+          }
+  // 👇 Call a WASM function that exits the process if needed
+  if (_exit) {
+    (_exit as CallableFunction)(0);
+  }
+          return 0;
+
+        }
+        const runResult = await run(execOptions,wasi_test ,callback);
+        console.log("after callback");
+
+        console.log(runResult);
+        console.log("after runResult");
+ 
+        console.log("JSON.stringify(env)");
+
+        console.log(JSON.stringify(env));
+
 
         // return result
+        const result = await exec(execOptions,wasi_test,stdin.readable );
         console.log(result);
   
         // Restore the original console.log after the request is handled (optional, but good practice)

@@ -8,7 +8,6 @@ export interface ExecOptions {
   // moduleName: string
   preopens: string[]
   returnOnExit: boolean
-  stdin?: string
 }
 
 export interface ExecResult {
@@ -16,6 +15,62 @@ export interface ExecResult {
   stderr: string
   status?: number
 }
+export const run = async (
+  options: ExecOptions,
+  wasm: WebAssembly.Module,
+  func:Function
+): Promise<ExecResult> => {
+
+  const stdout = new TransformStream()
+  const stderr = new TransformStream()
+
+  const wasi = new WASI({
+    args: options.args,
+    env: options.env,
+    fs: options.fs,
+    preopens: options.preopens,
+    returnOnExit: options.returnOnExit,
+    stderr: stderr.writable,
+    stdout: stdout.writable,
+    streamStdio: options.asyncify,
+  })
+  const importObject = {
+    wasi_snapshot_preview1: wasi.wasiImport,
+  };
+
+  const instance = new WebAssembly.Instance(wasm,importObject );
+
+  console.log("wasi start run func");
+  
+  const status = await func(instance);
+  console.log(`wasi finish run func, status :${status}`);
+
+ 
+
+console.log("Promise.all");
+
+const [stdoutStr, stderrStr] = await withTimeout(Promise.all([
+  collectStream(stdout.readable),
+  collectStream(stderr.readable)
+]), 1); 
+
+
+  console.log("Promise.all finish");
+
+  try {
+    const result = {
+      stdout: stdoutStr,
+      stderr: stderrStr,
+      status: status,
+    }
+    return result
+  } catch (e: any) {
+    e.message = `${e}\n\nstdout:\n${stdoutStr}\n\nstderr:\n${stderrStr}\n\n`
+    throw e
+  }
+
+}
+
 
 export const exec = async (
   options: ExecOptions,
@@ -37,21 +92,27 @@ export const exec = async (
     stdout: stdout.writable,
     streamStdio: options.asyncify,
   })
-  const instance = new WebAssembly.Instance(wasm, {
+  const importObject = {
     wasi_snapshot_preview1: wasi.wasiImport,
-  })
-  const promise = wasi.start(instance)
+  };
+  const instance = new WebAssembly.Instance(wasm,importObject );
+  // const instance = await WebAssembly.instantiate(wasmModule, importObject);
+  const promise = wasi.start(instance);
+
+  
+
 
   const streams = await Promise.all([
     collectStream(stdout.readable),
     collectStream(stderr.readable),
+    promise
   ])
 
   try {
     const result = {
       stdout: streams[0],
       stderr: streams[1],
-      status: await promise,
+      status: streams[2],
     }
     return result
   } catch (e: any) {
@@ -104,3 +165,11 @@ export async function writeStringToStream(data, writableStream) {
     writer.releaseLock();
   }
 }
+
+const withTimeout = (promise, timeoutMs) =>
+  Promise.race([
+    promise,
+    new Promise((resolve) =>
+      setTimeout(() => resolve(["", "Timeout waiting for stream"]), timeoutMs)
+    ),
+  ]);

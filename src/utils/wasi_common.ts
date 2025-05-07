@@ -45,19 +45,20 @@ export const run = async (
   if (options.presist) {
 
   }
-  var update = false;
-  const instance = options.presist ? (WasiInstanceList.has(options.moduleName) ? WasiInstanceList.get(options.moduleName) : (update = true ) && new WebAssembly.Instance(wasm, importObject) ):new WebAssembly.Instance(wasm, importObject);
-
-  if(update){
+  console.log(`moduleName ;${options.moduleName}, options.presist :${options.presist}`);
+  var create_new_instance = false;
+  if (options.presist) {
+    if (!WasiInstanceList.has(options.moduleName)) {
+      create_new_instance = true;
+    }
+  } else {
+    create_new_instance = true;
+  }
+  const instance = create_new_instance ? new WebAssembly.Instance(wasm, importObject) : WasiInstanceList.get(options.moduleName);
+  if (create_new_instance) {
+    console.log(`create new instance ${options.moduleName}`)
     WasiInstanceList.set(options.moduleName, instance);
-
-    console.log("======WasiInstanceList");
-    for(const [key, value] of WasiInstanceList) {
-      console.log(key, value);
   }
-  }
-
-  new WebAssembly.Instance(wasm, importObject);
 
   console.log("wasi start run func");
 
@@ -114,7 +115,19 @@ export const exec = async (
   const importObject = {
     wasi_snapshot_preview1: wasi.wasiImport,
   };
+  // const instance = new WebAssembly.Instance(wasm, importObject);
+  console.log(`moduleName ;${options.moduleName}, options.presist :${options.presist}`);
+  // var create_new_instance = true;
+  // if (options.presist) {
+  //   if (!WasiInstanceList.has(options.moduleName)) {
+  //     create_new_instance = true;
+  //   } 
+  // } else {
+  //   create_new_instance = true;
+  // }
   const instance = new WebAssembly.Instance(wasm, importObject);
+
+
   // const instance = await WebAssembly.instantiate(wasmModule, importObject);
   const promise = wasi.start(instance);
 

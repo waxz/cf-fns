@@ -15,6 +15,20 @@ use std::ptr;
 static mut SHARED_BUFFER: [u8; 10240] = [0; 10240];
 
 #[no_mangle]
+pub extern "C"  fn add_buffer_counter(i: u8){
+    unsafe{
+        SHARED_BUFFER[100] += i;
+    }
+}
+
+#[no_mangle]
+pub extern "C"  fn get_buffer_counter()->u8{
+    unsafe{
+        SHARED_BUFFER[100]
+    }
+}
+
+#[no_mangle]
 pub extern "C" fn write_to_buffer() -> usize {
     let message = b"Hello from Rust shared buffer!";
     unsafe {

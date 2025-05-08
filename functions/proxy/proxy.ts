@@ -1,12 +1,55 @@
 import { onRequestOptions } from "../../src/utils/response"
+import { encodeToHex, decodeFromHex, isHexEncoded, replace_text } from "../../src/utils/encode"
+
+
+// function toHexEncodedString(str) {
+//     let hexEncoded = "";
+//     for (let i = 0; i < str.length; i++) {
+//         const char = str[i];
+//         const charCode = char.charCodeAt(0);
+//         // Encode characters outside the basic ASCII range (0-127) or specific characters if needed
+//         if (charCode > 127 || char === '"' || char === '[' || char === ']' || char === ',' || char === '{' || char === '}') {
+//             const hexValue = charCode.toString(16).padStart(2, '0');
+//             hexEncoded += `\\x${hexValue}`;
+//         } else {
+//             hexEncoded += char;
+//         }
+//     }
+//     return hexEncoded;
+// }
+// // Modify and re-encode
+// function encodeToHex11(str) {
+//     return str.replace(/["\\]/g, ch => `\\x${ch.charCodeAt(0).toString(16).padStart(2, '0')}`);
+// }
+// function encodeToHex(str) {
+//     return str.replace(/[\s\S]/g, ch => {
+//         const code = ch.charCodeAt(0);
+//         // Encode only non-ASCII or special chars
+//         if (code < 32 || code > 126 || ch === '"' || ch === '\\') {
+//             return '\\x' + code.toString(16).padStart(2, '0');
+//         }
+//         return ch;
+//     });
+// }
+
+// function decodeFromHex(str) {
+//     return str.replace(/\\x([0-9A-Fa-f]{2})/g, (_, hex) =>
+//         String.fromCharCode(parseInt(hex, 16))
+//     );
+// }
+
+// function isHexEncoded(str) {
+//     // Checks for common hex escape sequences like \x22 or \\x22
+//     return /\\x[0-9A-Fa-f]{2}/.test(str);
+//   }
 
 class ContentTextHandler {
     target_host: string;
 
-     constructor(target_host){
+    constructor(target_host) {
         this.target_host = target_host;
     }
-    
+
     element(element) {
         // An incoming element, such as `div`
         console.log(`Incoming element: ${element.tagName}`);
@@ -57,18 +100,37 @@ export async function fetch_proxy(context) {
                 }
             }
         }
-        function replace_text(text:string) {
-            if(text){
-                console.log('replace_text')
-                console.log(text)
-                var new_text = text.replace("http",`${host}/proxy/http`);
-                console.log('new_text')
-                console.log(new_text)
-                return new_text;
-            }
-            return text;
-           
-        }
+        // function replace_text(text: string, host:string) {
+        //     if (text) {
+        //         const is_hex = isHexEncoded(text);
+        //         console.log(`replace_text raw is_hex: ${is_hex}`)
+        //         console.log(text)
+        //         if(is_hex){
+                    
+    
+        //             console.log('replace_text decoded')
+        //             const decoded = decodeFromHex(text);
+        //             console.log(decoded)
+    
+        //             const updated = decoded.replace("http", `${host}/proxy/http`);
+        //             console.log('replace_text updated')
+        //             console.log(updated)
+        //             const encoded = encodeToHex(updated);
+    
+        //             console.log('replace_text encoded')
+        //             console.log(encoded)
+        //             return encoded;
+        //         }else{
+        //             const updated = text.replace("http", `${host}/proxy/http`);
+        //             console.log('replace_text updated')
+        //             console.log(updated)
+        //             return updated;
+        //         }
+                
+        //     }
+        //     return text;
+
+        // }
 
 
 
@@ -79,56 +141,65 @@ export async function fetch_proxy(context) {
         const conten_type = resp.headers.get("content-type");
 
 
-        if (conten_type.includes('text/html')){
+        if (conten_type.includes('text/html')) {
             const rewriter = new HTMLRewriter()
-            .on("script[src]", {
-                element(el) { 
-                    replace_link(el, "src") ;
-                }
-            })
-            .on("link[ref]", {
-                element(el) { replace_link(el, "ref") }
-            }).on("link[href]", {
-                element(el) { replace_link(el, "href") }
-            })
-            //img srcset
-            .on("img[srcset]", {
-                element(el) { replace_link(el, "srcset") }
-            })
-            .on("img[src]", {
-                element(el) { replace_link(el, "src") }
-            }).on("a[href]", {
-                element(el) { replace_link(el, "href") }
-            }).on("script",{
-                text({text}) { 
-                    const regular_sting = text;
-                    console.log("script text")
-                    text = replace_text(regular_sting)
-                 }
-            })
-            ;
+                .on("script[src]", {
+                    element(el) {
+                        replace_link(el, "src");
+                    }
+                })
+                .on("link[ref]", {
+                    element(el) { replace_link(el, "ref") }
+                }).on("link[href]", {
+                    element(el) { replace_link(el, "href") }
+                })
+                //img srcset
+                .on("img[srcset]", {
+                    element(el) { replace_link(el, "srcset") }
+                })
+                .on("img[src]", {
+                    element(el) { replace_link(el, "src") }
+                }).on("a[href]", {
+                    element(el) { replace_link(el, "href") }
+                }).on("script", {
+                    text({ text }) {
+                        if (text) {
+                            text = replace_text(text, host)
+                        }
+                    }
+                }).on("style", {
+                    text({ text }) {
+                        if (text) {
+                            text = replace_text(text, host)
+                        }
+                    }
+                })
 
-        const new_resp = rewriter.transform(resp)
+                ;
 
-        return new Response(new_resp.body, { ...resp });
-        }else if (conten_type.includes('text/javascript')) {
+            const new_resp = rewriter.transform(resp)
+
+            return new Response(new_resp.body, { ...resp });
+        } else if (conten_type.includes('text/javascript')) {
             const text = await resp.text();
-            
+
             console.log("script file")
 
-            if(text){
-                    console.log(text); 
-            const new_text = replace_text(text)
-            return new Response(new_text, { ...resp });
+            if (text) {
+                console.log(text);
+                console.log("replace_text script file")
 
+                const new_text = replace_text(text,host)
+                return new Response(new_text, { ...resp });
             }
+            return resp;
 
-        }else{
+        } else {
             return resp;
         }
 
 
- 
+
     }
 
 

@@ -1,6 +1,11 @@
 import { print_request } from "../src/utils/print_request";
 import { checkCookiesLoginexist } from "./login/auth";
 
+import {onRequestOptions} from "../src/utils/response"
+
+
+
+
 async function errorHandling(context) {
   try {
     return await context.next();
@@ -11,6 +16,12 @@ async function errorHandling(context) {
 
 export async function preprocess(context) {
   const { request, env } = context;
+
+  // if (request.method === 'OPTIONS') {
+  //   return onRequestOptions();
+  // }
+
+
   const url = new URL(request.url);
   console.log(`preprocess: ${url}`);
 

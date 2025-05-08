@@ -67,7 +67,6 @@ self.addEventListener("install", e => {
   console.log("[ServiceWorker] - skipWaiting");
   self.skipWaiting();
   console.log("[ServiceWorker] - skipWaiting");
-  e.source.postMessage('KEEPALIVE_RESPONSE');
   e.waitUntil((async () => {
     const cache = await caches.open(cacheName);
     console.log("[ServiceWorker] - Caching app shell");
@@ -202,12 +201,22 @@ self.addEventListener("fetch", (event) => {
 
   console.log(`Handling request: ${url}`);
 
+  const host= `${url.protocol}//${url.hostname}`;
 
-  if (url.pathname.startsWith("/proxy/example")) {
 
-    event.respondWith(new Response(`<h1>Mock Example Page for ${url.pathname} </h1>`, {
-      headers: { "Content-Type": "text/html" }
-    }));
+
+
+  if (url.pathname.startsWith("/proxy/http")) {
+    // const url_in_pathname = url.pathname.slice(7,url.pathname.length-1 );
+    // const url_in_host = `{host}/proxy/${url_in_pathname}`;
+    // console.log(`Handling url_in_pathname: ${url_in_pathname}`);
+    // const new_req = new Request(
+    // );
+    // event.respondWith(new Response(`<h1>Mock Example Page for ${url.pathname} </h1>`, {
+    //   headers: { "Content-Type": "text/html" }
+    // }));
+    event.respondWith(cacheThenNetwork(request));
+
   } else {
     event.respondWith(cacheThenNetwork(request));
   }

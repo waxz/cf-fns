@@ -18,15 +18,27 @@ burn-vision = {version = "0.17.0",default-features = false, features =[] }
 # async-channel = "2.3"
 rand = "0.9.1"
 getrandom = "0.3.2"
+dom_query = "0.18.0"
 # ureq = "3.0.11"
+# `wee_alloc` is a tiny allocator for wasm that is only ~1K in code size
+# compared to the default allocator's ~10K. It is slower than the default
+# allocator, however.
+wee_alloc = { version = "0.4.5", optional = true }
+once_cell = "1.19"  # or latest stable
+log = "0.4.6"
 
 # [patch.crates-io]
 # async-channel = "2.3.1" 
 
+# [lib]
+# crate-type = ['cdylib']
+# name = "my_rust_function"
+# path = "src/lib/lib.rs"
+
 [lib]
 crate-type = ['cdylib']
-name = "my_rust_function"
-path = "src/lib/lib.rs"
+name = "html_rewriter"
+path = "src/lib/html_rewriter.rs"
 
 [[bin]]
 name = "wasi-test"

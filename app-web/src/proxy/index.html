@@ -4,6 +4,45 @@
 <head>
     <title>Functions : powered by cloudflare</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>cf proxy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background: rgb(255, 255, 255);
+            color: rgb(255, 255, 255);
+        }
+
+        a {
+            color: rgb(255, 255, 255);
+        }
+
+        del {
+            color: rgb(255, 255, 255);
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .important {
+            font-weight: bold;
+            font-size: 27;
+        }
+
+        /* my style begins*/
+        form[id=urlForm] {
+            margin: 0 auto;
+        }
+
+        input[id=targetUrl] {
+            background-color: rgb(255, 255, 255);
+        }
+
+        button[id=jumpButton] {
+            background-color: rgb(0, 255, 0);
+        }
+    </style>
+
     <script type="module">
 
         import { setupWorker } from 'msw/browser'
@@ -31,10 +70,10 @@
             }
         }
         function send_data(data) {
-                navigator.serviceWorker.ready.then((registration) => {
-                    registration.active.postMessage(data);
-                });
-            }
+            navigator.serviceWorker.ready.then((registration) => {
+                registration.active.postMessage(data);
+            });
+        }
 
 
         // Do something with cacheName.
@@ -85,7 +124,7 @@
 
             }
 
-     
+
             navigator.serviceWorker.addEventListener("message", (event) => {
                 console.log(`navigator.serviceWorker.addEventListener => message`);
 
@@ -126,7 +165,7 @@
             const a = document.getElementById("fuck");
 
             if (a) {
-                a.setAttribute("href", "/proxy/example/https://example.com")
+                a.setAttribute("href", "/proxy/https://example.com")
             }
 
         })
@@ -137,23 +176,25 @@
 
 <body>
     {serive_worker}
-    <p>
-        version 0.0.10
-    </p>
-    <p>
-        <a href="https://example.com">https://example.com </a>
-    </p>
-
-    <p>
-        <a href="/proxy/example">/proxy/example</a>
-    </p>
-    <p>
-        <a id="fuck" href="/proxy/example">/proxy/example/https://example.com</a>
-    </p>
-
-    <p>
-        <a href="/proxy/resource"> /proxy/resource</a>
-    </p>
+    <form id="urlForm" onsubmit="redirectToProxy(event)">
+        <fieldset>
+            <legend>Proxy Everything</legend><label for="targetUrl">TargetUrl: <input type="text" id="targetUrl"
+                    placeholder="Enter the target URL here..."></label><button type="submit"
+                id="jumpButton">Jump!</button>
+        </fieldset>
+    </form>
+    <script>function redirectToProxy(event) {
+            event.preventDefault();
+            var targetUrl = document.getElementById("targetUrl").value.trim();
+            if (!targetUrl) return; if (!targetUrl.startsWith("http")) {
+                targetUrl = "https://" + targetUrl;
+            };
+            const currentOrigin = window.location.origin;
+            var pathname = `/proxy/${targetUrl}`;
+            console.log(`pathname :${pathname}`);
+            location.pathname = pathname;
+        }
+    </script>
 </body>
 
 </html>

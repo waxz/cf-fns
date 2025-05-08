@@ -122,11 +122,9 @@ export async function fetch_proxy(context) {
             return new Response(new_text, { ...resp });
 
             }
+
+        }else{
             return resp;
-
-
-
-
         }
 
 

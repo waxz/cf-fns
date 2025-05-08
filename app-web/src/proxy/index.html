@@ -1,46 +1,99 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Functions : powered by cloudflare</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script type="module" src="config.ts"></script>
-        <script type="module" src="es-module-sw.ts"></script>
-        <script type="module" src="index.ts"></script>
 
-        <script>
-            //https://stackoverflow.com/questions/179355/clearing-all-cookies-with-javascript
-            function deleteAllcookies(){
-                console.log("deleteAllcookies");
-                document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
+<head>
+    <title>Functions : powered by cloudflare</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="module">
+
+        import { setupWorker } from 'msw/browser'
+        import { handlers } from './handlers'
+        import { http, HttpResponse } from 'msw'
+
+
+        // Do something with cacheName.
+        if ('serviceWorker' in navigator) {
+            //https://github.com/parcel-bundler/parcel/issues/8307
+            //https://parceljs.org/features/targets/#implicit-environments
+            //https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/message_event
+
+            const use_local_service = false;
+            if (use_local_service) {
+
+                window.addEventListener('load', () => {
+                    var worker_url = new URL("./service-worker.js", import.meta.url);
+                    console.log(`import.meta.url ${import.meta.url}, worker_url ${worker_url}`);
+                    navigator.serviceWorker.register(worker_url)
+                        .then((registration) => {
+                            if (registration.active) {
+                                console.log('Service worker is active');
+                            }
+                        });
+                });
+            } else {
+
+                const handlers = [
+                    // This handler will capture ALL requests to the
+                    // "/user" endpoint: GET, POST, DELETE, etc.
+                    http.all('/proxy', (path) => {
+                        console.log(`handlers path ${path}`)
+                        // Handle the request.
+                    }),
+                ]
+
+                const worker = setupWorker(...handlers)
+                await worker.start({
+                    serviceWorker: {
+                        // This is useful if your application follows
+                        // a strict directory structure.
+                        url: '/proxy/mockServiceWorker.js',
+                    },
+                }) // Promise<{ pending }>
+
             }
-            function logout(){
-                console.log("logout");
+            navigator.serviceWorker.addEventListener("message", (event) => {
+                // event is a MessageEvent object
+                console.log(`The service worker sent me a message: ${JSON.stringify(event.data)}`);
+            });
 
-                deleteAllcookies();
+            navigator.serviceWorker.ready.then((registration) => {
+                registration.active.postMessage("Hi service worker");
+            });
 
-            }
-            function sleep(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms));
-              }
 
-            var current_url = new URL(document.URL);
+        }
+    </script>
 
-              
-        </script>
-    </head>
-    <body>
-        <p > 
-            <a href="/login"> Login</a> 
-            <button onclick="logout()">Logout</button>
-        </p>
-        <p > 
-            <a href="/hello"> hello</a> 
-        </p>
-        <p > 
-            <a href="/cf-api"> cf-api</a> 
-        </p>
-        <p > 
-            <a href="/quartz"> Quartz</a> 
-        </p>
-    </body>
+    <script>
+        //https://stackoverflow.com/questions/179355/clearing-all-cookies-with-javascript
+        function deleteAllcookies() {
+            console.log("deleteAllcookies");
+            document.cookie.split(";").forEach(function (c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
+        }
+        function logout() {
+            console.log("logout");
+
+            deleteAllcookies();
+
+        }
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        var current_url = new URL(document.URL);
+
+
+    </script>
+</head>
+
+<body>
+    {serive_worker}
+    <p>
+        <a href="https://example.com/user">https://example.com/user </a>
+    </p>
+    <p>
+        <a href="/proxy/resource"> /proxy/resource</a>
+    </p>
+</body>
+
 </html>

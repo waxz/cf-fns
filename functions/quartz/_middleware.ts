@@ -9,6 +9,9 @@ function getFileExtensionFromUrl(url) {
 
 export async function preprocess(context) {
   const { request, env } = context;
+  const url = new URL(request.url);
+
+  console.log(`quartz preprocess: ${url}`);
 
   // const ext = getFileExtensionFromUrl(request.url);
   // if (ext == "css" || ext == "png" || ext == "js" || ext == "json") {

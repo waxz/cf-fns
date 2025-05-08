@@ -1,32 +1,39 @@
-function getFileExtensionFromUrl(url) {
-  const parts = url.split('.');
-  if (parts.length > 1) {
-    return parts.pop();
-  }
-  return '';
-}
-
-
 export async function preprocess(context) {
   const { request, env } = context;
-
   const url = new URL(request.url);
-  const ext = getFileExtensionFromUrl(url.pathname);
+  const ext = url.pathname.split('.').pop()?.split('?')[0] || '';
+  console.log(`proxy preprocess: ${url}`);
 
-  if (["css", "png", "js", "json", "ico", "jpg", "jpeg", "svg", "webp"].includes(ext)) {
-    // Clone request and remove caching headers
-    const headers = new Headers(request.headers);
-    headers.delete("if-modified-since");
-    headers.delete("if-none-match");
+  console.log(`url : ${JSON.stringify(url, null,2)}`);
+  const fetch_local_regex = /^\/proxy\/[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?\.js$/;
+  
+  const fetch_local = fetch_local_regex.test(url.pathname);
+  const is_local = url.pathname == "/proxy" || url.pathname == "/proxy/";
 
-    const newRequest = new Request(request, { headers });
+  console.log(`fetch_local ${fetch_local}, ${url.pathname }, ${is_local}`); // true
 
-    const asset = await env.ASSETS.fetch(newRequest);
-    return asset;
+  if(fetch_local || is_local){
+    console.log("proxy normal");
+
+    return context.next();
+
+  }else{
+    console.log("proxy reject");
+    const target_url = url.pathname;
+    if (!target_url.startsWith('http')){
+      return new Response(`hello proxy pathname ${url.pathname}}`,{status : 200});
+    }
+
+
+    
+
+
+
   }
+
+
 
   return context.next();
 }
-
 
 export const onRequest = [preprocess];

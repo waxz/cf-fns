@@ -28,11 +28,31 @@ export async function fetch_proxy(context) {
                         el.setAttribute(attr, `/${attr}`)
                     }
                 }
-            });
+            })
+            .on("link[ref]", {
+                element(el) { 
+                    const attr = "ref";
+                    const value = el.getAttribute(attr);
+                    if (value && value.startsWith("http")){
+                        el.setAttribute(attr, `/${attr}`)
+                    }
+                }
+            })
+//img srcset
+.on("img[srcset]", {
+    element(el) { 
+        const attr = "srcset";
+        const value = el.getAttribute(attr);
+        if (value && value.startsWith("http")){
+            el.setAttribute(attr, `/${attr}`)
+        }
+    }
+})
+            ;
 
         const new_resp = rewriter.transform(resp)
 
-        return new_resp;
+        return new Response(new_resp.body,{... resp});
     }
 
 

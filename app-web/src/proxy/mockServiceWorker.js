@@ -1,5 +1,6 @@
 /* eslint-disable */
 /* tslint:disable */
+/*  version 0.0.3 */
 
 /**
  * Mock Service Worker.
@@ -96,15 +97,18 @@ self.addEventListener('message', async function (event) {
 
 self.addEventListener('fetch', function (event) {
   const { request } = event
+  console.log(`fetch request: ${request.url}`)
 
   // Bypass navigation requests.
-  if (request.mode === 'navigate') {
-    return
-  }
+  // if (request.mode === 'navigate') {
+  //   return
+  // }
 
   // Opening the DevTools triggers the "only-if-cached" request
   // that cannot be handled by the worker. Bypass such requests.
+
   if (request.cache === 'only-if-cached' && request.mode !== 'same-origin') {
+    console.log(`bypass fetch request: ${request.url}`)
     return
   }
 
@@ -112,17 +116,27 @@ self.addEventListener('fetch', function (event) {
   // Prevents the self-unregistered worked from handling requests
   // after it's been deleted (still remains active until the next reload).
   if (activeClientIds.size === 0) {
+    console.log(`bypass fetch request: ${request.url}`)
+
     return
   }
 
   // Generate unique request ID.
   const requestId = crypto.randomUUID()
+  console.log(`requestId: ${requestId}`)
+
   event.respondWith(handleRequest(event, requestId))
 })
 
 async function handleRequest(event, requestId) {
+
+  console.log(`resolveMainClient: ${requestId}`)
+
   const client = await resolveMainClient(event)
+  console.log(`getResponse: ${requestId}`)
+
   const response = await getResponse(event, client, requestId)
+  console.log(`response: ${response}`)
 
   // Send back the response clone for the "response:*" life-cycle events.
   // Ensure MSW is active and ready to handle the message, otherwise
@@ -186,7 +200,7 @@ async function resolveMainClient(event) {
 
 async function getResponse(event, client, requestId) {
   const { request } = event
-
+  console.log(`getResponse request: ${request.url}`)
   // Clone the request because it might've been already used
   // (i.e. its body has been read and sent to the client).
   const requestClone = request.clone()
@@ -212,6 +226,7 @@ async function getResponse(event, client, requestId) {
         headers.delete('accept')
       }
     }
+    console.log(`getResponse fetch request: ${request.url}`)
 
     return fetch(requestClone, { headers })
   }

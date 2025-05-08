@@ -11,35 +11,68 @@
         import { http, HttpResponse } from 'msw'
 
 
+        async function unregisterAll() {
+            if (window.navigator && navigator.serviceWorker) {
+                await navigator.serviceWorker.getRegistrations()
+                    .then(async function (registrations) {
+                        for (let registration of registrations) {
+                            registration.active.postMessage('purge_cache');
+
+                            await registration.unregister().then(function () {
+                                console.log('Service worker unregistered successfully.');
+                                // Optionally, reload the page after unregistration
+                                // window.location.reload(true);
+                            }).catch(function (error) {
+                                console.error('Service worker unregistration failed:', error);
+                            });
+
+                        }
+                    });
+            }
+        }
+        function send_data(data) {
+                navigator.serviceWorker.ready.then((registration) => {
+                    registration.active.postMessage(data);
+                });
+            }
+
+
         // Do something with cacheName.
         if ('serviceWorker' in navigator) {
+            // await unregisterAll();
+
             //https://github.com/parcel-bundler/parcel/issues/8307
             //https://parceljs.org/features/targets/#implicit-environments
             //https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/message_event
 
-            const use_local_service = false;
+            const use_local_service = true;
             if (use_local_service) {
-
-                window.addEventListener('load', () => {
-                    var worker_url = new URL("./service-worker.js", import.meta.url);
-                    console.log(`import.meta.url ${import.meta.url}, worker_url ${worker_url}`);
-                    navigator.serviceWorker.register(worker_url)
-                        .then((registration) => {
-                            if (registration.active) {
-                                console.log('Service worker is active');
-                            }
-                        });
-                });
+                // window.addEventListener('load', () => {
+                var worker_url = new URL("./service-worker.js", import.meta.url);
+                console.log(`import.meta.url ${import.meta.url}, worker_url ${worker_url}`);
+                await navigator.serviceWorker.register(worker_url)
+                    .then((registration) => {
+                        if (registration.active) {
+                            send_data('KEEPALIVE_REQUEST');
+                            console.log('Service worker is active');
+                        }
+                    });
+                // });
             } else {
-
                 const handlers = [
-                    // This handler will capture ALL requests to the
-                    // "/user" endpoint: GET, POST, DELETE, etc.
-                    http.all('/proxy', (path) => {
-                        console.log(`handlers path ${path}`)
-                        // Handle the request.
+                    http.all('*', async ({ request, params, cookies }) => {
+                        console.log('Intercepted request to:', request.url);
+                        const resp = await fetch(event.request);
+                        console.log('Intercepted fetch resp:', resp);
+
+
+                        // Optionally return a mocked response
+                        return HttpResponse(resp.body, {
+                            status: resp.status,
+                            headers: resp.headers,
+                        });
                     }),
-                ]
+                ];
 
                 const worker = setupWorker(...handlers)
                 await worker.start({
@@ -51,14 +84,21 @@
                 }) // Promise<{ pending }>
 
             }
+
+     
             navigator.serviceWorker.addEventListener("message", (event) => {
-                // event is a MessageEvent object
-                console.log(`The service worker sent me a message: ${JSON.stringify(event.data)}`);
+                console.log(`navigator.serviceWorker.addEventListener => message`);
+
+                console.log(event.data);
+
+                switch (event.data) {
+                    case 'KEEPALIVE_RESPONSE': {
+                        console.log(`KEEPALIVE`);
+                        break
+                    }
+                }
             });
 
-            navigator.serviceWorker.ready.then((registration) => {
-                registration.active.postMessage("Hi service worker");
-            });
 
 
         }
@@ -82,6 +122,15 @@
 
         var current_url = new URL(document.URL);
 
+        window.addEventListener('load', () => {
+            const a = document.getElementById("fuck");
+
+            if (a) {
+                a.setAttribute("href", "/proxy/example/https://example.com")
+            }
+
+        })
+
 
     </script>
 </head>
@@ -89,8 +138,19 @@
 <body>
     {serive_worker}
     <p>
-        <a href="https://example.com/user">https://example.com/user </a>
+        version 0.0.10
     </p>
+    <p>
+        <a href="https://example.com">https://example.com </a>
+    </p>
+
+    <p>
+        <a href="/proxy/example">/proxy/example</a>
+    </p>
+    <p>
+        <a id="fuck" href="/proxy/example">/proxy/example/https://example.com</a>
+    </p>
+
     <p>
         <a href="/proxy/resource"> /proxy/resource</a>
     </p>

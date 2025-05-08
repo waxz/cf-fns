@@ -2,8 +2,7 @@ export async function preprocess(context) {
     const { request, env } = context;
     const url = new URL(request.url);
     const ext = url.pathname.split('.').pop()?.split('?')[0] || '';
-
-    const fetch_local_regex = /^\/proxy\/[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?\.js$/;
+    const fetch_local_regex = /^\/proxy\/[a-zA-Z0-9.-]+\.js$/;
 
     const fetch_local = fetch_local_regex.test(url.pathname);
     const is_local = url.pathname == "/proxy" || url.pathname == "/proxy/";

@@ -54,10 +54,10 @@ pub fn distance_between(from_latitude_degrees: f64, from_longitude_degrees: f64,
 ````
 
 To build the `app-rust` project you will need to run:
+
 ```sh
 wasm-pack build
-``` 
-
+```
 This orchestrates the following steps ([*](https://rustwasm.github.io/docs/book/game-of-life/hello-world.html#build-the-project)):
 - Ensure that we have the correct Rust version and the wasm32-unknown-unknown target installed via rustup,
 - Compile our Rust sources into a WebAssembly .wasm binary via cargo,
@@ -76,6 +76,7 @@ The client application is responsible of rendering the globe on the page, allowi
 > The Pages Functions folder
 
 Please refer to the Pages official [docs](https://developers.cloudflare.com/pages/platform/functions/routing/) for more information about Functions.
+
 ## Develop
 
 Install npm dependencies
@@ -83,12 +84,12 @@ Install npm dependencies
 ```sh
 yarn
 ```
+
 Generate types
 
 ```sh
 yarn generate-types
 ```
-
 
 Build Rust project
 
@@ -101,78 +102,101 @@ Start local server
 ```sh
 yarn dev --ip 0.0.0.0 --port 8888
 ```
+
 and go to `http://127.0.0.1:8788/` in your browser.
 
-Deploy 
+Deploy
+
 ```sh
 npx wrangler pages deploy
 ```
 
 Get pages log
+
 ```bash
 npx wrangler pages deployment tail
 npx wrangler pages deployment tail --project-name pages-fns-with-wasm-demo
 ```
 
 test
+
 ```
 while true; do curl http://localhost:8888/hello; sleep 1; done
-
 ```
 
 Quartz
+
 ```bash
 if [ ! -d /tmp/quartz-builder ]; then  git clone --branch v4.5.0 --depth 1 https://github.com/jackyzha0/quartz.git /tmp/quartz-builder; fi
 ```
 
-
 # wasm
+
 https://rustwasm.github.io/wasm-bindgen/examples/hello-world.html
 
 # kv
+
 ```
 npx wrangler kv namespace list
 npx wrangler kv namespace create KV
 ```
+
 # use ssl
+
 ### use cf ssl
+
 ```bash
-
-
 export ssl_certificate_key=cert/private.pem; export ssl_certificate=./cert/certificate.pem ;npx wrangler pages dev --local-protocol http --https-key-path $ssl_certificate_key --https-cert-path $ssl_certificate --port 8888 --ip 0.0.0.0
-
 # sudo chown -R $USER:$USER $ssl_certificate_key
 # sudo chown -R $USER:$USER $ssl_certificate
-
-
 ```
 
 # redirect
+
 [slash best practice](https://developers.google.com/search/blog/2010/04/to-slash-or-not-to-slash)
 [redirect](https://developers.cloudflare.com/pages/configuration/redirects/)
 Redirects defined in the _redirects file are not applied to requests served by Pages Functions, even if the Function route matches the URL pattern. If your Pages application uses Functions, you must migrate any behaviors from the _redirects file to the code in the appropriate /functions route, or exclude the route from Functions.
 
-
-
 # r2
+
 ```bash
-
-
 sudo -v ; curl https://rclone.org/install.sh | sudo bash
 
 ```
 
 # D1
+
 ```bash
 npx wrangler d1 execute D1 --file ./create.sql --remote
 npx wrangler d1 execute D1 --command="SELECT * FROM logs;" --remote
 npx wrangler d1 execute D1 --remote --command="SELECT name FROM sqlite_master WHERE type='table';"
 ```
 
-
 # signal-hook-registry error
+
 ```bash
 sudo apt-get install gcc-multilib
 
 cargo tree
+```
+
+# spidermonkey
+
+https://github.com/mozilla-spidermonkey/spidermonkey-embedding-examples/blob/esr115/docs/Building%20SpiderMonkey.md
+
+```bash
+wget https://ftp.mozilla.org/pub/firefox/releases/139.0b5/source/firefox-139.0b5.source.tar.xz -O /tmp/firefox-139.0b5.source.tar.xz
+mkdir /tmp/firefox-source
+tar xvf /tmp/firefox-139.0b5.source.tar.xz  -C /tmp/firefox-source --strip-components=1
+cargo install cbindgen
+
+
+cd /tmp/firefox-source/js/src
+mkdir _build
+cd _build
+../configure --disable-jemalloc --with-system-zlib \
+    --with-intl-api --enable-debug --enable-optimize --prefix=/usr/local
+make -j4
+make install  # sudo if necessary
+
 ```

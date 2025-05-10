@@ -1,0 +1,4 @@
+
+[alias] 
+bb="build --release --target wasm32-wasip1 --target-dir /tmp/cargo/build/app-rust" 
+ii="install --locked --target wasm32-wasip1 --target-dir /tmp/cargo/app-rust --path .  --root /tmp/cargo/install/app-rust" 

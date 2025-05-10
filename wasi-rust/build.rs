@@ -5,6 +5,9 @@ use std::{fs, io};
 
 fn main() -> io::Result<()> {
     println!("run build.rs");
+    return Ok(());
+    
+
     println!("cargo:rerun-if-changed=src/"); // Trigger rebuild on source changes
     println!("cargo:rerun-if-changed=build.rs");
     std::env::set_var("REBUILD", format!("{:?}", std::time::Instant::now()));

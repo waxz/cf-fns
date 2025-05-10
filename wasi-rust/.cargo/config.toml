@@ -2,4 +2,5 @@
 [alias] 
 ff="fix --release --target wasm32-wasip1 --target-dir /tmp/cargo/build/wasi-rust" 
 bb="build --release --target wasm32-wasip1 --target-dir /tmp/cargo/build/wasi-rust" 
-ii="install --locked --target wasm32-wasip1 --target-dir /tmp/cargo/wasi-rust --path .  --root /tmp/cargo/install/wasi-rust" 
+ii="install --locked --target wasm32-wasip1 --target-dir /tmp/cargo/build/wasi-rust --path .  --root /tmp/cargo/install/wasi-rust" 
+tt = 'bash ./build-wasm-opt.sh /tmp/cargo/install/wasi-rust/bin'

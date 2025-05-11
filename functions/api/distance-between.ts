@@ -1,5 +1,5 @@
 
-import {load_wasm} from "../../src/utils/load_wasm.js";
+import {load_wasm} from "../../src/utils/load_wasm_web.js";
 
 
 import { GeoCoordinates } from "../../app-web/src/globe/geoCoordinates.interface";

@@ -4,8 +4,10 @@
   "description": "A demo app that exemplifies wasm module imports in Pages Functions",
   "scripts": {
     "dev": "nodemon --watch app-web/src --ext \"html,scss,js,mjs,ts,json\" -x \"yarn web && cp -r ./app-rust/pkg/ ./public/dist && npx wrangler pages dev public/dist \"",
-    "web": "rm -rf .parcel-cache dist public/dist && parcel build  'app-web/src/proxy/*.html' --dist-dir public/dist/proxy &&parcel build 'app-web/src/*.html' 'app-web/src/login/*.html' 'app-web/src/logs/*.html' --dist-dir public/dist && cp ./app-web/src/proxy/mockServiceWorker.js public/dist/proxy/ && yarn quartz",
+    "web": "parcel build  --cache-dir /tmp/.parcel-cache 'app-web/src/proxy/*.html' --dist-dir public/dist/proxy &&parcel build 'app-web/src/*.html' 'app-web/src/login/*.html' 'app-web/src/logs/*.html' --dist-dir public/dist && cp ./app-web/src/proxy/mockServiceWorker.js public/dist/proxy/ && yarn quartz",
     "rust": "cd app-rust && cargo tt",
+    "clean" : " rm -rf  /tmp/.parcel-cache dist public/dist",
+
     "wasi": "cd wasi-rust &&cargo ii && cargo tt ",
     "lint": "eslint .",
     "serve": "export ssl_certificate_key=cert/private.pem; export ssl_certificate=./cert/certificate.pem ;npx wrangler pages dev --local-protocol http --https-key-path $ssl_certificate_key --https-cert-path $ssl_certificate --port 8888 --ip 0.0.0.0",
@@ -14,7 +16,7 @@
     "quartz": "if [ ! -d ./public/dist/quartz ] ; then mkdir -p ./public/dist/quartz ;fi;docker run --name quartz_builder -v /tmp/quartz:/tmp/quartz -v ./content:/tmp/content -v ./public/dist/quartz:/tmp/output -w /tmp/quartz --rm  node:22 bash -c 'npm install -g npm@11.2.0 && npm i && npx quartz build -d /tmp/content -o /tmp/output'; sudo chown -R $USER:$USER ./public/dist/quartz "
   },
   "devDependencies": {
-    "@parcel/transformer-sass": "^2.14.4",
+
     "buffer": "^6.0.3",
     "eslint": "^9.25.1",
     "msw": "^2.7.6",
@@ -27,7 +29,6 @@
   },
   "dependencies": {
     "@cloudflare/workers-wasi": "^0.0.5",
-    "cloudflare": "4.2.0",
-    "sass": "^1.87.0"
+    "cloudflare": "4.2.0"
   }
 }

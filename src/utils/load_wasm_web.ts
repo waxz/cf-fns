@@ -1,12 +1,12 @@
-import init from "../../app-rust/pkg/web/src_wasm.js";
+import init from "/tmp/cargo/install/app-rust/pkg/web/src_wasm.js";
 
-import wasmUrl from "../../app-rust/pkg/web/src_wasm_bg.wasm"; // 👈 this is crucial
-import wasmBinary from '../../app-rust/pkg/web/src_wasm_bg.wasm?module';
+import wasmUrl from "/tmp/cargo/install/app-rust/pkg/web/src_wasm_bg.wasm"; // 👈 this is crucial
+import wasmBinary from '/tmp/cargo/install/app-rust/pkg/web/src_wasm_bg.wasm?module';
 
 let wasmInstance: WebAssembly.WebAssemblyInstantiatedSource;
 
 // @ts-ignore
-import wasmModule from "../../app-rust/pkg/src_wasm_bg.wasm";
+//import wasmModule from "../../app-rust/pkg/src_wasm_bg.wasm";
 let wasmReady = false;
 let wasm;
 
@@ -14,10 +14,10 @@ export async function load_wasm(context, f) {
     const { request, env } = context;
 
     var url = new URL(request.url);
-    url.pathname = "/pkg/web/src_wasm_bg.wasm";
-    var newReq = new Request(
-        url.toString()
-    );
+//    url.pathname = "/pkg/web/src_wasm_bg.wasm";
+//    var newReq = new Request(
+//        url.toString()
+//    );
 
 
     try {

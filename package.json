@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "nodemon --watch app-web/src --ext \"html,scss,js,mjs,ts,json\" -x \"yarn web && cp -r ./app-rust/pkg/ ./public/dist && npx wrangler pages dev public/dist \"",
     "web": "rm -rf .parcel-cache dist public/dist && parcel build  'app-web/src/proxy/*.html' --dist-dir public/dist/proxy &&parcel build 'app-web/src/*.html' 'app-web/src/login/*.html' 'app-web/src/logs/*.html' --dist-dir public/dist && cp ./app-web/src/proxy/mockServiceWorker.js public/dist/proxy/ && yarn quartz",
-    "rust": "cd app-rust && mkdir -p ./pkg/ && rm -r ./pkg/ && wasm-pack build -d ./pkg/node && wasm-pack build --target web -d ./pkg/web && wasm-pack build --target no-modules -d ./pkg/no-modules && wasm-pack build  --target bundler -d ./pkg/bundler",
-    "wasi": "cd wasi-rust &&cargo build --release --target wasm32-wasip1",
+    "rust": "cd app-rust && cargo tt",
+    "wasi": "cd wasi-rust &&cargo ii && cargo tt ",
     "lint": "eslint .",
     "serve": "export ssl_certificate_key=cert/private.pem; export ssl_certificate=./cert/certificate.pem ;npx wrangler pages dev --local-protocol http --https-key-path $ssl_certificate_key --https-cert-path $ssl_certificate --port 8888 --ip 0.0.0.0",
     "deploy": "npx wrangler pages deploy && npx wrangler pages deployment tail --project-name pages-fns-with-wasm-demo",

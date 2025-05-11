@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+tl = "0.7.8"
+wee_alloc = { version = "0.4.5", optional = true }
+once_cell = "1.19"  # or latest stable
+log = "0.4.6"

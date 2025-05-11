@@ -41,14 +41,13 @@ html = {path = "./crates/html"}
 # name = "my_rust_function"
 # path = "src/lib/lib.rs"
 
-[lib]
-crate-type = ['cdylib']
-name = "html_rewriter"
-path = "src/lib/html_rewriter.rs"
 
 [[bin]]
 name = "wasi-test"
 path = "src/bin/main.rs"
+[[bin]]
+name = "html-test"
+path = "src/bin/html-test.rs"
 
 [profile.release]
 opt-level = "z"

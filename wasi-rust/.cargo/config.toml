@@ -1,7 +1,7 @@
 
 [alias] 
 ff="fix --release --target wasm32-wasip1 --target-dir /tmp/cargo/build/wasi-rust" 
-bb="build --release --target wasm32-wasip1 --target-dir /tmp/cargo/build/wasi-rust" 
-ii="install --locked --target wasm32-wasip1 --target-dir /tmp/cargo/build/wasi-rust --path .  --root /tmp/cargo/install/wasi-rust" 
+bb="build --release --target wasm32-wasip1 --target-dir /tmp/cargo/build/wasi-rust " 
+ii="install --locked --target wasm32-wasip1 --target-dir /tmp/cargo/build/wasi-rust --path .  --root /tmp/cargo/install/wasi-rust " 
 tt = 'bash bash ./build-wasm-opt.sh /tmp/cargo/install/wasi-rust/bin'
 rr = "bash wasmtime run --dir=. --dir=.::/tmp /tmp/cargo/install/wasi-rust/bin/html-test.wasm"

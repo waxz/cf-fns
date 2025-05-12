@@ -11,7 +11,11 @@ use std::io::{Read, Write};
 // share memory
 use std::slice;
 use std::ptr;
-
+// When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
+// allocator.
+#[cfg(feature = "wee_alloc")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 static mut SHARED_BUFFER: [u8; 10240] = [0; 10240];
 
 #[no_mangle]
@@ -40,11 +44,28 @@ pub extern "C" fn write_to_buffer() -> usize {
 
 #[no_mangle]
 pub extern "C" fn get_buffer_ptr() -> *const u8 {
+    // println!("wasi recieve hello  "  );
+
     unsafe { SHARED_BUFFER.as_ptr() }
 }
 
 
+#[no_mangle]
+pub extern "C" fn hello(  )  -> usize {
+    // println!("wasi recieve hello  "  );
 
+    // read_file("/tmp/data.txt");
+ 0
+}
+
+#[no_mangle]
+pub extern "C"
+fn hello_num(num: usize  ) -> usize  {
+ 
+//  println!("wasi recieve num {}",num )
+
+num+10
+}
 
 // Use this example with something like mitmproxy
 // $ mitmproxy --listen-port 8080
@@ -201,6 +222,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         if let Ok(pwd) = std::env::current_dir() {
             println!("wasi run in pwd :{:?} ", pwd);
         }
+        let filename = "/tmp/data.txt";
+
+        read_file(filename);
+        println!("{} File content is {}", filename, read_file(filename));
+
+
     }
 
     {

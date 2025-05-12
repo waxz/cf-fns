@@ -4,6 +4,9 @@ export const login_redirect_html = login_redirect_html_;
 import wasi_test_ from '/tmp/cargo/install/wasi-rust/bin/async_wasi-test.wasm';
 export const wasi_test = wasi_test_;
 
+import html_test_ from '/tmp/cargo/install/wasi-rust/bin/async_html-test.wasm';
+export const html_test = html_test_;
+
 import index_html_ from "../public/dist/index.html";
 export const index_html = index_html_;
 

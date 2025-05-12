@@ -6,7 +6,7 @@ edition = "2018"
 
 #cargo new --lib --name html ./crates/html
 [workspace]
-members = ["./crates/html","./crates/mem"]
+members = ["./crates/nx_html","./crates/nx_mem"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -29,8 +29,8 @@ dom_query = "0.18.0"
 wee_alloc = { version = "0.4.5", optional = true }
 once_cell = "1.19"  # or latest stable
 log = "0.4.6"
-mem = {path = "./crates/mem"}
-html = {path = "./crates/html"}
+nx_mem = {path = "./crates/nx_mem"}
+nx_html = {path = "./crates/nx_html"}
 
 
 # [patch.crates-io]
@@ -49,11 +49,24 @@ path = "src/bin/main.rs"
 name = "html-test"
 path = "src/bin/html-test.rs"
 
+
+# https://stackoverflow.com/questions/49077147/how-can-i-force-build-rs-to-run-again-without-cleaning-my-whole-project
+# [[bin]]
+# name = "force-build"
+# path = "build.rs"
+# required-features = ["build_deps"]
+
+
+# [features]
+# build_deps = ["cc"]
+
+
 [profile.release]
 opt-level = "z"
 lto = true
 # codegen-units = 1
-
+[build-dependencies]
+cc = "1.0"
 
 # [package.metadata.component]
 # target = { path = "wit/host.wit" }

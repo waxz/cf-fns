@@ -4,7 +4,18 @@
 // use std::{fs, io};
 
 fn main() -> std::io::Result<()> {
-    println!("run build.rs");
+    
+
+
+    std::env::set_var("REBUILD", format!("{:?}", std::time::Instant::now()));
+    println!("cargo:rerun-if-env-changed=REBUILD");
+    println!("cargo:rerun-if-changed=build.rs");
+
+    println!("run build.rs dsfr");
+    cc::Build::new()
+    .file("./tinyalloc/tinyalloc.c")
+    .compile("tinyalloc");
+
     Ok(())
 }
 

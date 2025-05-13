@@ -20,6 +20,40 @@ export interface ExecResult {
   stderr: string
   status?: number
 }
+export const get_instance = (
+  options: ExecOptions,
+  wasm: WebAssembly.Module
+): WebAssembly.Instance =>{
+
+  const wasi = new WASI({
+    args: options.args,
+    env: options.env,
+    fs: options.fs,
+    preopens: options.preopens,
+    returnOnExit: options.returnOnExit,
+    streamStdio: options.asyncify,
+  })
+  const importObject = {
+    wasi_snapshot_preview1: wasi.wasiImport,
+  };
+
+  console.log(`moduleName ;${options.moduleName}, options.presist :${options.presist}`);
+  var create_new_instance = false;
+  if (options.presist) {
+    if (!WasiInstanceList.has(options.moduleName)) {
+      create_new_instance = true;
+    }
+  } else {
+    create_new_instance = true;
+  }
+  const instance = create_new_instance ? new WebAssembly.Instance(wasm, importObject) : WasiInstanceList.get(options.moduleName);
+  if (create_new_instance) {
+    console.log(`create new instance ${options.moduleName}`)
+    WasiInstanceList.set(options.moduleName, instance);
+  }
+  return instance;
+}
+
 export const run = async (
   options: ExecOptions,
   wasm: WebAssembly.Module,

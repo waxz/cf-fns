@@ -25,7 +25,7 @@ interface Env {
 // import { Environment, WASI } from '@cloudflare/workers-wasi';
 
 
-import { wasi_test,html_test } from "../src/resource";
+import { html_test } from "../src/resource";
 
 
 // import * as child from 'node:child_process'
@@ -34,7 +34,7 @@ import { wasi_test,html_test } from "../src/resource";
 // import * as process from 'node:process';
 // import path from 'path/posix'
 
-import { ExecOptions, exec, run, writeStringToStream } from '../src/utils/wasi_common';
+import { ExecOptions, exec, run, writeStringToStream,get_instance } from '../src/utils/wasi_common';
 function createRandomString(length) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
@@ -142,51 +142,53 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
       const callback = async (instance: WebAssembly.Instance): Promise<number> => {
         console.log("run callback");
-        const { memory, _exit, init_ta_alloc ,hello_num, hello_str, get_buffer_ptr, get_buffer_len,get_input_buffer_ptr,my_alloc} = instance.exports;
+        const { memory,_exit, my_init} = instance.exports;
         {
           const memory_array = memory as WebAssembly.Memory;
 
-          const init_ta_alloc_func = init_ta_alloc as CallableFunction;
-          const hello_num_func = hello_num as CallableFunction;
-          const hello_str_func = hello_str as CallableFunction;
-          const get_buffer_ptr_func = get_buffer_ptr as CallableFunction;
-          const get_buffer_len_func = get_buffer_len as CallableFunction;
-          const get_input_buffer_ptr_func = get_input_buffer_ptr as CallableFunction;
-          const my_alloc_func = my_alloc as CallableFunction;
+          const my_init_f = my_init as CallableFunction;
+          // const hello_num_func = hello_num as CallableFunction;
+          // const hello_str_func = hello_str as CallableFunction;
+          // const get_buffer_ptr_func = get_buffer_ptr as CallableFunction;
+          // const get_buffer_len_func = get_buffer_len as CallableFunction;
+          // const get_input_buffer_ptr_func = get_input_buffer_ptr as CallableFunction;
+          // const my_alloc_func = my_alloc as CallableFunction;
 
           // my_alloc_func(100);
+          my_init_f();
 
 
-          const input_ptr = get_input_buffer_ptr_func();
-          const input_data ="hello from cf";
-          const input_memory = new Uint8Array(memory_array.buffer, input_ptr, input_data.length);
 
-          // Copy the bytes into WASM memory
-          input_memory.set(new TextEncoder().encode(input_data));
+          // const input_ptr = get_input_buffer_ptr_func();
+          // const input_data ="hello from cf";
+          // const input_memory = new Uint8Array(memory_array.buffer, input_ptr, input_data.length);
+
+          // // Copy the bytes into WASM memory
+          // input_memory.set(new TextEncoder().encode(input_data));
 
           
 
 
-          const rt = init_ta_alloc_func();
+          // const rt = init_ta_alloc_func();
 
-          const rt2 = hello_num_func(55);
-          hello_str_func(input_memory.byteOffset,input_memory.byteLength);
+          // const rt2 = hello_num_func(55);
+          // hello_str_func(input_memory.byteOffset,input_memory.byteLength);
 
 
-          console.log(`init_ta_alloc_func: ${rt}, rt2: ${rt2}`);
-          // const hello_num_func = hello_num as CallableFunction;
-          // Call Rust function to write to buffer
-          const len = get_buffer_len_func();
+          // console.log(`init_ta_alloc_func: ${rt}, rt2: ${rt2}`);
+          // // const hello_num_func = hello_num as CallableFunction;
+          // // Call Rust function to write to buffer
+          // const len = get_buffer_len_func();
 
-          // Get pointer to buffer
-          const ptr = get_buffer_ptr_func();
-          console.log(`ptr: ${ptr}, len: ${len}`);
+          // // Get pointer to buffer
+          // const ptr = get_buffer_ptr_func();
+          // console.log(`ptr: ${ptr}, len: ${len}`);
 
-          // Create a typed array view into the WASM memory
-          const bytes = new Uint8Array(memory_array.buffer, ptr, len);
-          const message = new TextDecoder().decode(bytes);
+          // // Create a typed array view into the WASM memory
+          // const bytes = new Uint8Array(memory_array.buffer, ptr, len);
+          // const message = new TextDecoder().decode(bytes);
 
-          console.log("Message from Rust buffer:", message);
+          // console.log("Message from Rust buffer:", message);
           // hello_func();
           // hello_num_func(123);
 
@@ -214,15 +216,17 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       // console.log(JSON.stringify(env));
 
 
-      // return result
-      const result = await exec(execOptions, wasi_test, stdin.readable);
-      console.log(result);
+      // // return result
+      // const result = await exec(execOptions,
+      //    wasi_test, 
+      //    stdin.readable);
+      // console.log(result);
 
-      // Restore the original console.log after the request is handled (optional, but good practice)
-      console.log = originalConsoleLog;
+      // // Restore the original console.log after the request is handled (optional, but good practice)
+      // console.log = originalConsoleLog;
 
 
-      return new Response(result.stdout);
+      // return new Response(result.stdout);
     } catch (e: any) {
       e.message = `${e}`;
       throw e

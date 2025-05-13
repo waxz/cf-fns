@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@cloudflare/workers-wasi": "^0.0.5",
-    "cloudflare": "4.2.0"
+    "cloudflare": "4.2.0",
+    "@mswjs/interceptors":"0.38.6"
   }
 }

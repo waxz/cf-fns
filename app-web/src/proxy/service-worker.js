@@ -204,6 +204,7 @@ self.addEventListener("fetch", (event) => {
   const host= `${url.protocol}//${url.hostname}`;
 
 
+  console.log(`Handling request: ${url}, host : ${host}`);
 
 
   if (url.pathname.startsWith("/proxy/http")) {

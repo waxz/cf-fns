@@ -1,7 +1,29 @@
 import { onRequestOptions } from "../../src/utils/response"
 import { encodeToHex, decodeFromHex, isHexEncoded, replace_text } from "../../src/utils/encode"
 
+import {get_instance,ExecOptions} from "../../src/utils/wasi_common"
+import { wasi_test,html_test } from "../../src/resource";
+    const html_test_execOptions: ExecOptions = {
+      moduleName: "html_rewriter",
+      presist: true,
+      asyncify: false,
+      // args: ["write", '/tmp/a.txt', "hello https://github.com/cloudflare/workers-wasi/blob/main/src/index.ts"],
+      args: ["read", '/index.html', "data"],
 
+      // preopens: { '/tmp': '/sandbox_data' },
+      preopens: ['/tmp', '/'],
+
+      fs: {
+        '/tmp/my_file.txt': 'This is the content of my file.',
+
+      },
+      env: {
+        PROJECT_NAME: "cf",
+        wasi_output: "wasi_output from cf",
+
+      },
+      returnOnExit: false,
+    }
 // function toHexEncodedString(str) {
 //     let hexEncoded = "";
 //     for (let i = 0; i < str.length; i++) {
@@ -80,8 +102,20 @@ export async function fetch_proxy(context) {
     console.log(`fetch_proxy preprocess: ${url}`);
 
 
+ const instance = get_instance(html_test_execOptions, html_test);
+  const { memory,my_init,my_alloc,my_get_size} = instance.exports;
+          const memory_array = memory as WebAssembly.Memory;
+          const my_init_f = my_init as CallableFunction;
+          const my_alloc_f = my_alloc as CallableFunction;
+          const my_get_size_f = my_get_size as CallableFunction;
 
+const init_ok = my_init_f();
 
+   console.log(`my_init_f init_ok ${init_ok}`)
+const init_ok2 = my_init_f();
+
+   console.log(`my_init_f init_ok2 ${init_ok2}`)
+ 
     if (url.pathname.startsWith('/proxy/http://') || url.pathname.startsWith('/proxy/https://')) {
         var target_url = url.pathname.slice(7, url.pathname.length);
         const target_URL = new URL(target_url);
@@ -138,63 +172,90 @@ export async function fetch_proxy(context) {
 
 
         const resp = await fetch(new_req);
+        
         const conten_type = resp.headers.get("content-type");
 
 
         if (conten_type.includes('text/html')) {
-            const rewriter = new HTMLRewriter()
-                .on("script[src]", {
-                    element(el) {
-                        replace_link(el, "src");
-                    }
-                })
-                .on("link[ref]", {
-                    element(el) { replace_link(el, "ref") }
-                }).on("link[href]", {
-                    element(el) { replace_link(el, "href") }
-                })
-                //img srcset
-                .on("img[srcset]", {
-                    element(el) { replace_link(el, "srcset") }
-                })
-                .on("img[src]", {
-                    element(el) { replace_link(el, "src") }
-                }).on("a[href]", {
-                    element(el) { replace_link(el, "href") }
-                }).on("script", {
-                    text({ text }) {
-                        if (text) {
-                            text = replace_text(text, host)
-                        }
-                    }
-                }).on("style", {
-                    text({ text }) {
-                        if (text) {
-                            text = replace_text(text, host)
-                        }
-                    }
-                })
 
-                ;
-
-            const new_resp = rewriter.transform(resp)
-
-            return new Response(new_resp.body, { ...resp });
-        } else if (conten_type.includes('text/javascript')) {
+            const headers = resp.headers;
+            const status = resp.status;
             const text = await resp.text();
 
-            console.log("script file")
+            console.log(`resp text :${text.slice(0,100)}`);
 
-            if (text) {
-                console.log(text);
-                console.log("replace_text script file")
+            const text_ptr = my_alloc_f(text.length);
+            console.log(`resp text_ptr :${text_ptr}`);
+            const text_ptr2 = my_alloc_f(text.length + 100);
+            console.log(`resp text_ptr ${text_ptr} :${my_get_size_f(text_ptr)}`);
+            console.log(`resp text_ptr2 ${text_ptr2} :${my_get_size_f(text_ptr2)}`);
 
-                const new_text = replace_text(text,host)
-                return new Response(new_text, { ...resp });
-            }
-            return resp;
+           return new Response(text, { 
+            status:status,
+            headers:headers
+        });
 
-        } else {
+
+            // const rewriter = new HTMLRewriter()
+            //     .on("script[src]", {
+            //         element(el) {
+            //             replace_link(el, "src");
+            //         }
+            //     })
+            //     .on("link[ref]", {
+            //         element(el) { replace_link(el, "ref") }
+            //     }).on("link[href]", {
+            //         element(el) { replace_link(el, "href") }
+            //     })
+            //     //img srcset
+            //     .on("img[srcset]", {
+            //         element(el) { replace_link(el, "srcset") }
+            //     })
+            //     .on("img[src]", {
+            //         element(el) { replace_link(el, "src") }
+            //     }).on("a[href]", {
+            //         element(el) { replace_link(el, "href") }
+            //     })
+            //     // .on("script", {
+            //     //     text({ text }) {
+            //     //         if (text) {
+            //     //             text = replace_text(text, host)
+            //     //         }
+            //     //     }
+            //     // })
+                
+            //     .on("style", {
+            //         text({ text }) {
+            //             if (text) {
+            //                 text = replace_text(text, host)
+            //             }
+            //         }
+            //     })
+
+            //     ;
+
+            // const new_resp = rewriter.transform(resp)
+
+            // return new Response(new_resp.body, { ...resp });
+        } 
+        
+        // else if (conten_type.includes('text/javascript')) {
+        //     const text = await resp.text();
+
+        //     console.log("script file")
+
+        //     if (text) {
+        //         console.log(text);
+        //         console.log("replace_text script file")
+
+        //         const new_text = replace_text(text,host)
+        //         return new Response(new_text, { ...resp });
+        //     }
+        //     return resp;
+
+        // } 
+        
+        else {
             return resp;
         }
 

@@ -7,14 +7,18 @@ fn main() -> std::io::Result<()> {
     
 
 
-    std::env::set_var("REBUILD", format!("{:?}", std::time::Instant::now()));
+    unsafe{
+        std::env::set_var("REBUILD", format!("{:?}", std::time::Instant::now()));
+    }
+
+    
     println!("cargo:rerun-if-env-changed=REBUILD");
     println!("cargo:rerun-if-changed=build.rs");
 
     println!("run build.rs dsfr");
-    // cc::Build::new()
-    // .file("./tinyalloc/tinyalloc.c")
-    // .compile("tinyalloc");
+    cc::Build::new()
+    .file("./tinyalloc/tinyalloc.c")
+    .compile("tinyalloc");
 
     Ok(())
 }

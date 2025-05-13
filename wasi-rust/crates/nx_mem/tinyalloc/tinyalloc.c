@@ -124,15 +124,28 @@ bool ta_init(const void *base, const void *limit, const size_t heap_blocks, cons
     heap->top    = (size_t)(heap->fresh + heap_blocks);
 
     Block *block = heap->fresh;
-    size_t i     = heap_max_blocks - 1;
+    int i     = heap_max_blocks - 1;
     while (i--) {
         block->next = block + 1;
         block++;
     }
     block->next = NULL;
-    return true;
+    return heap != NULL;
 }
-
+size_t ta_getsize(void *ptr) {
+    if (ptr == NULL) {
+        return 0;
+    }
+    // Heap *heap   = (Heap *)heap;
+    Block *block = heap->used;
+    while (block != NULL) {
+        if (ptr == block->addr) {
+            return block->size;
+        }
+        block = block->next;
+    }
+    return 0;
+}
 bool ta_free(void *free) {
     Block *block = heap->used;
     Block *prev  = NULL;

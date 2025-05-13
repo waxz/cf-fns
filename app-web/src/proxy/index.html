@@ -3,9 +3,11 @@
 
 <head>
     <title>Functions : powered by cloudflare</title>
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>cf proxy</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://developer.mozilla.org/static/css/main.a7f6bb79.css" rel="stylesheet">
+    <style>@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:300;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Lt.woff2) format('woff2')}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:400;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Rg.woff2) format('woff2')}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:500;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Md.woff2) format('woff2')}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:700;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Bd.woff2) format('woff2')}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:900;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_ExBd.woff2) format('woff2')}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:300;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_LtIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:400;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_It.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:500;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_MdIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:700;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_BdIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:900;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_ExBdIt.woff2) format('woff2');font-style:italic}@font-face{font-family:ReithSans;font-display:block;font-weight:300;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Lt.woff2) format('woff2')}@font-face{font-family:ReithSans;font-display:block;font-weight:400;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Rg.woff2) format('woff2')}@font-face{font-family:ReithSans;font-display:block;font-weight:500;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Md.woff2) format('woff2')}@font-face{font-family:ReithSans;font-display:block;font-weight:700;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Bd.woff2) format('woff2')}@font-face{font-family:ReithSans;font-display:block;font-weight:900;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_ExBd.woff2) format('woff2')}@font-face{font-family:ReithSerif;font-display:block;font-weight:300;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Lt.woff2) format('woff2')}@font-face{font-family:ReithSerif;font-display:block;font-weight:400;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Rg.woff2) format('woff2')}@font-face{font-family:ReithSerif;font-display:block;font-weight:500;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Md.woff2) format('woff2')}@font-face{font-family:ReithSerif;font-display:block;font-weight:700;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Bd.woff2) format('woff2')}@font-face{font-family:ReithSerif;font-display:block;font-weight:900;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_ExBd.woff2) format('woff2')}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:300;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Lt.woff2) format('woff2')}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:400;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Rg.woff2) format('woff2')}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:500;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Md.woff2) format('woff2')}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:700;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Bd.woff2) format('woff2')}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:900;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_ExBd.woff2) format('woff2')}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:300;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_LtIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:400;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_It.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:500;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_MdIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:700;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_BdIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:900;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_ExBdIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'Freight Disp Light';font-display:swap;src:url(https://static.files.bbci.co.uk/bbcdotcom/web/20250428-123652-7bc49a8f4-web-2.20.1-1/Freight_Disp_Light.woff2) format('woff2')}@font-face{font-family:BBCReithSans-fallback;size-adjust:103%;ascent-override:normal;src:local('Arial')}@font-face{font-family:BBCReithSans-fallback;font-weight:500;size-adjust:96%;ascent-override:normal;src:local('Arial Bold')}@font-face{font-family:BBCReithSerif-fallback;size-adjust:120%;ascent-override:75%;src:local('Times New Roman')}@font-face{font-family:BBCReithSerif-fallback;font-weight:500;size-adjust:110%;ascent-override:75%;src:local('Times New Roman Bold')}</style>
+
     <style>
         body {
             background: rgb(255, 255, 255);
@@ -44,6 +46,52 @@
     </style>
 
     <script type="module">
+
+
+    // intercetor
+const originalFetch = window.fetch;
+
+window.fetch = async (input, init) => {
+  let url = typeof input === 'string' ? input : input.url;
+    console.log('[Fetch Intercepted] Rewriting:', url);
+
+  // Rewrite logic
+  const fetch_local_regex = /^\/proxy\/[a-zA-Z0-9.-]+\.js$/;
+  if (fetch_local_regex.test(url)) {
+    const newUrl = `https://your-cdn.com${url}`;
+    console.log('[Fetch Intercepted] Rewriting:', url, '→', newUrl);
+    url = newUrl;
+  }
+
+  return originalFetch(url, init);
+};
+
+const originalXHROpen = XMLHttpRequest.prototype.open;
+
+XMLHttpRequest.prototype.open = function (method, url, async, user, password) {
+    console.log('[Fetch Intercepted] Rewriting:', url);
+
+  // Rewrite logic
+  const fetch_local_regex = /^\/proxy\/[a-zA-Z0-9.-]+\.js$/;
+  if (fetch_local_regex.test(url)) {
+    const newUrl = `https://your-cdn.com${url}`;
+    console.log('[XHR Intercepted] Rewriting:', url, '→', newUrl);
+    url = newUrl;
+  }
+
+  return originalXHROpen.call(this, method, url, async, user, password);
+};
+
+
+    //
+
+    //
+
+
+
+
+
+
 
         import { setupWorker } from 'msw/browser'
         import { handlers } from './handlers'
@@ -192,9 +240,41 @@
             const currentOrigin = window.location.origin;
             var pathname = `/proxy/${targetUrl}`;
             console.log(`pathname :${pathname}`);
-            location.pathname = pathname;
+
+
+            //test
+const url = '/logs';
+const data = {
+  key1: 'value1',
+  key2: 'value2'
+};
+
+const options = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(data)
+};
+
+fetch(url, options)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Success:', data);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+            //
+           // location.pathname = pathname;
         }
     </script>
+
 </body>
 
 </html>

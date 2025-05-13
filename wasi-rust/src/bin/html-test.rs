@@ -5,63 +5,24 @@ use nx_html::test_html;
 // #[global_allocator]
 // static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-static SHARED_BUFFER_SIZE: usize = 10240;
-static mut SHARED_BUFFER: [u8; SHARED_BUFFER_SIZE] = [0; SHARED_BUFFER_SIZE];
 
-static INPUT_SHARED_BUFFER_SIZE: usize = 10240;
-static mut INPUT_SHARED_BUFFER: [u8; INPUT_SHARED_BUFFER_SIZE] = [0; INPUT_SHARED_BUFFER_SIZE];
+// use alloc_cat::{ALLOCATOR, AllocCat};
 
-static mut SHARED_BUFFER_STR_LEN: usize = 100;
+// #[global_allocator]
+// pub static GLOBAL_ALLOCATOR: &AllocCat = &ALLOCATOR;
 
-// static SHARED_BUFFER_HEADER_LEN :usize = 100;
-// static SHARED_BUFFER_CAPACITY :usize = SHARED_BUFFER_SIZE - SHARED_BUFFER_HEADER_LEN;
-
-static mut TA_ALLOC_INIT: bool = false;
-
-extern "C" {
-
-    fn ta_init(
-        base: *const u8,
-        limit: *const u8,
-        heap_blocks: usize,
-        split_thresh: usize,
-        alignment: usize,
-    ) -> bool;
-
-    fn ta_alloc(num: usize) -> *const u8;
-
-    fn ta_calloc(num: usize, size: usize) -> *const u8;
-
-    fn ta_free(ptr: *const u8) -> bool;
-    fn ta_num_free() -> usize;
-    fn ta_num_used() -> usize;
-    fn ta_num_fresh() -> usize;
-    fn ta_check() -> bool;
-}
 
 #[no_mangle]
-pub extern "C" fn init_ta_alloc()->bool {
-    unsafe {
-        if(!TA_ALLOC_INIT){
+pub extern "C" fn dummy()  {
+    nx_mem::ta_alloc::my_init();
+    let ptr = nx_mem::ta_alloc::my_alloc(100) as *const u8;
+    println!("ptr, {:?}", ptr);
+    let ptr = nx_mem::ta_alloc::my_alloc(100) as *const u8;
+    println!("ptr, {:?}", ptr);
+    let _ =  nx_mem::ta_alloc::my_get_size(ptr);
+    nx_mem::ta_alloc::my_free(ptr);
+    let _ = nx_mem::ta_alloc::my_get_size(ptr);
 
-
-        let ok : bool = ta_init(
-            SHARED_BUFFER.as_ptr(),
-            SHARED_BUFFER.as_mut_ptr().add(SHARED_BUFFER_SIZE),
-            256,
-            16,
-            8,
-        );
-        
-        TA_ALLOC_INIT = ok;
-
-
-        }
-
-       TA_ALLOC_INIT
-    }
-
-    
 }
 
 #[no_mangle]
@@ -69,44 +30,6 @@ pub extern "C" fn hello_num(num: usize) -> usize {
     //  println!("wasi recieve num {}",num )
 
     num + 10
-}
-
-#[no_mangle]
-pub extern "C" fn hello_str(ptr: *mut u8, size: usize) {
-    let data = unsafe { String::from_raw_parts(ptr, size, size) };
-
-    let mut s = format!("hello {data} from wasi");
-
-    unsafe {
-        SHARED_BUFFER_STR_LEN = s.len();
-
-        // Copy the string into the static buffer
-        let string_bytes = s.into_bytes();
-        SHARED_BUFFER[..string_bytes.len()].copy_from_slice(string_bytes.as_slice());
-    }
-    // std::mem::forget(s);
-    // ptr
-}
-
-#[no_mangle]
-pub extern "C" fn get_buffer_ptr() -> *const u8 {
-    unsafe { SHARED_BUFFER.as_mut_ptr() }
-}
-
-#[no_mangle]
-pub extern "C" fn get_input_buffer_ptr() -> *const u8 {
-    unsafe { INPUT_SHARED_BUFFER.as_mut_ptr() }
-}
-
-#[no_mangle]
-pub extern "C" fn get_buffer_len() -> usize {
-    // let size: usize = unsafe{*( SHARED_BUFFER.as_ptr() as * const usize)};
-    unsafe { SHARED_BUFFER_STR_LEN }
-}
-
-#[no_mangle]
-pub extern "C" fn drop_str(ptr: *mut u8) {
-    nx_mem::my_dealloc(ptr);
 }
 
 use std::fs::File;
@@ -128,10 +51,18 @@ pub extern "C" fn html_rewrite(
     proxy_path: &str,
     target_domain: &str,
 ) {
-    println!("html_rewrit, proxy_domain:{proxy_domain}, proxy_path:{proxy_path}, target_domain:{target_domain}")
+    println!("html_rewrit, proxy_domain:{proxy_domain}, proxy_path:{proxy_path}, target_domain:{target_domain}, html:{html}")
 }
 
-fn main() -> std::io::Result<()> {
+fn main() -> std::io::Result<()> { 
+
+
+dummy();
+
+
+
+
+    return Ok(());
     let html = r#"
 <!DOCTYPE html>
 <html>

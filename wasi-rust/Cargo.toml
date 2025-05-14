@@ -27,7 +27,7 @@ dom_query = "0.18.0"
 # compared to the default allocator's ~10K. It is slower than the default
 # allocator, however.
 wee_alloc = { version = "0.4.5", optional = true }
-once_cell = "1.19"  # or latest stable
+# once_cell = "1.19"  # or latest stable
 log = "0.4.6"
 nx_mem = {path = "./crates/nx_mem"}
 nx_html = {path = "./crates/nx_html"}
@@ -69,7 +69,8 @@ lto = true
 # codegen-units = 1
 [build-dependencies]
 cc = "1.0"
-
+[package.metadata.wasm]
+initial-memory = 20972152  # in bytes or pages (depends on tool)
 # [package.metadata.component]
 # target = { path = "wit/host.wit" }
 # [target.wasm32-wasip1-threads]

@@ -8,7 +8,7 @@ import { getGfwTextCached } from "../src/utils/gfw";
 // import * as fs from 'node:fs/promises'
 // import { ReadableStream } from 'node:stream/web'
 
-
+import { encode_text, get_memory_array } from "../src/utils/encode"
 
 
 
@@ -34,7 +34,7 @@ import { html_test } from "../src/resource";
 // import * as process from 'node:process';
 // import path from 'path/posix'
 
-import { ExecOptions, exec, run, writeStringToStream,get_instance } from '../src/utils/wasi_common';
+import { ExecOptions, exec, run, writeStringToStream, get_instance } from '../src/utils/wasi_common';
 function createRandomString(length) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
@@ -51,29 +51,29 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   const originalConsoleLog = console.log;
 
-  console.log = (...args) => {
-    originalConsoleLog(...args);
-    // const logMessage = args.join(' ');
-    const logMessage = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
-    originalConsoleLog("Attempting to save log:", logMessage); // Debugging log
-    waitUntil(saveLogToD1(env.DB, logMessage));
-  };
+  // console.log = (...args) => {
+  //   originalConsoleLog(...args);
+  //   // const logMessage = args.join(' ');
+  //   const logMessage = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+  //   originalConsoleLog("Attempting to save log:", logMessage); // Debugging log
+  //   waitUntil(saveLogToD1(env.DB, logMessage));
+  // };
 
-  async function saveLogToD1(database, message) {
-    originalConsoleLog("saveLogToD1 called with:", message);
-    try {
-      const result = await database
-        .prepare("INSERT INTO logs (timestamp, message) VALUES (?, ?)")
-        .bind(Date.now(), message)
-        .run();
-      originalConsoleLog("Log saved to D1:", message, `Success: ${result.success}`);
-      if (!result.success) {
-        originalConsoleLog("D1 Insert Failed (No Exception):", JSON.stringify(result));
-      }
-    } catch (e) {
-      originalConsoleLog("Error saving log to D1:", e);
-    }
-  }
+  // async function saveLogToD1(database, message) {
+  //   originalConsoleLog("saveLogToD1 called with:", message);
+  //   try {
+  //     const result = await database
+  //       .prepare("INSERT INTO logs (timestamp, message) VALUES (?, ?)")
+  //       .bind(Date.now(), message)
+  //       .run();
+  //     originalConsoleLog("Log saved to D1:", message, `Success: ${result.success}`);
+  //     if (!result.success) {
+  //       originalConsoleLog("D1 Insert Failed (No Exception):", JSON.stringify(result));
+  //     }
+  //   } catch (e) {
+  //     originalConsoleLog("Error saving log to D1:", e);
+  //   }
+  // }
 
   const myData = { name: 'John', age: 30 };
   console.log("User data:", JSON.stringify(myData));
@@ -142,7 +142,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
       const callback = async (instance: WebAssembly.Instance): Promise<number> => {
         console.log("run callback");
-        const { memory,_exit, my_init} = instance.exports;
+        const { memory, _exit, my_init } = instance.exports;
         {
           const memory_array = memory as WebAssembly.Memory;
 
@@ -166,7 +166,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           // // Copy the bytes into WASM memory
           // input_memory.set(new TextEncoder().encode(input_data));
 
-          
+
 
 
           // const rt = init_ta_alloc_func();
@@ -205,11 +205,65 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         return 0;
 
       }
-      const runResult = await run(html_test_execOptions, html_test, callback);
+      // const runResult = await run(html_test_execOptions, html_test, callback);
+
+      const instance = get_instance(html_test_execOptions, html_test);
+
+
+      {
+        const { memory, _exit, mem_alloc, mem_addr, mem_size,change_string } = instance.exports;
+        const memory_array = memory as WebAssembly.Memory;
+
+        const mem_alloc_f = mem_alloc as CallableFunction;
+        const mem_addr_f = mem_addr as CallableFunction;
+        const mem_size_f = mem_size as CallableFunction;
+        const change_string_f = change_string as CallableFunction;
+
+        function send_string_to_wasm(data: string): Uint8Array {
+          const data_array = encode_text(data);
+          const mem_id = mem_alloc_f(data_array.byteLength);
+          const ptr = mem_addr_f(mem_id);
+          const size = mem_size_f(mem_id);
+          console.log(`ptr:${ptr}, size:${size}`)
+
+          const buffer = get_memory_array(data_array, ptr, memory_array.buffer);
+          return buffer;
+        }
+
+        function get_string_from_wasm(mem_id:Number):string{
+          const ptr = mem_addr_f(mem_id);
+          const size = mem_size_f(mem_id);
+          console.log(`ptr:${ptr}, size:${size}`)
+
+          const bytes = new Uint8Array(memory_array.buffer, ptr, size);
+          const message = new TextDecoder().decode(bytes);
+          return message;
+        }
+
+
+
+        const msg = "hello from cf"; 
+        const buffer1 = send_string_to_wasm(msg);
+
+
+
+        console.log(`send_string_to_wasm byteOffset:${buffer1.byteOffset}, byteLength:${buffer1.byteLength}`)
+
+
+
+        let index2 = change_string_f(buffer1.byteOffset,buffer1.byteLength);
+
+        const resp1 = get_string_from_wasm(index2);
+        console.log(`change_string_f resp1:${resp1}`)
+
+
+      }
+
+
       console.log("after callback");
 
-      console.log(runResult);
-      console.log("after runResult");
+      // console.log(runResult);
+      // console.log("after runResult");
 
       // console.log("JSON.stringify(env)");
 

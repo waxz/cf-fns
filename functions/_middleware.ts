@@ -5,6 +5,8 @@ import { onRequestOptions } from "../src/utils/response"
 import { index_html } from "../src/resource"
 import { template_replace } from "../src/utils/template_replace"
 
+import {init_client,axiom_logger} from "../src/utils/axiom"
+
 
 async function errorHandling(context) {
   try {
@@ -16,6 +18,7 @@ async function errorHandling(context) {
 
 export async function preprocess(context) {
   const { request, env } = context;
+  await init_client(context);
 
   // if (request.method === 'OPTIONS') {
   //   return onRequestOptions();
@@ -50,7 +53,7 @@ export async function preprocess(context) {
 
     // prevent caching redirect
 
-    if (!(url.pathname == "/404" || url.pathname == "/" || url.pathname.startsWith("/login"))) {
+    if (!(url.pathname == "/404" || url.pathname == "/" || url.pathname.startsWith("/login")  )   ) {
       // const url_404 = url;
       // url_404.pathname = "/";
       // headers.set('Location', url_404.toString());

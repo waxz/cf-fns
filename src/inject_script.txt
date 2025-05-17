@@ -1,0 +1,94 @@
+
+(async function () {
+  async function axiom_log(payload) {
+    var data  = JSON.stringify(payload);
+data = data + "----------";
+
+    fetch("/logs", {
+      method: "POST",
+      body: data,
+    })
+      .then(function (res) {
+        //alert(JSON.stringify(res));
+
+        return res.json();
+      })
+      .then(function (data) {
+        console.log(JSON.stringify(data));
+        //alert(JSON.stringify(data));
+
+      });
+  }
+
+  await axiom_log({ msg: "app intialised!!" });
+
+  const proxy_host = "https://pages-fns-with-wasm-demo-35t.pages.dev/proxy";
+  const target_host = "https://www.bbc.com";
+
+  // Hook fetch
+
+  // Intercept fetch
+  const originalFetch = window.fetch;
+  window.fetch = async function (...args) {
+    const [resource, config] = args;
+    console.log("[Fetch Intercepted]", resource, config);
+
+    // Modify config.headers, referrer, etc.
+    const newConfig = {
+      ...(config || {}),
+      headers: {
+        ...(config?.headers || {}),
+        "X-Intercepted": "true",
+      },
+      referrer: "https://bbc.com", // or any custom value
+    };
+
+    return originalFetch(resource, newConfig);
+  };
+
+  // Intercept XMLHttpRequest
+  const originalOpen = XMLHttpRequest.prototype.open;
+  const originalSend = XMLHttpRequest.prototype.send;
+
+  XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+    this._interceptedUrl = url;
+    console.log("[XHR Open Intercepted]", method, url);
+    return originalOpen.call(this, method, url, ...rest);
+  };
+
+  XMLHttpRequest.prototype.send = function (body) {
+    console.log("[XHR Send Intercepted]", this._interceptedUrl, body);
+
+    // Example: override request header
+    this.setRequestHeader("X-Intercepted", "true");
+
+    return originalSend.call(this, body);
+  };
+
+  // Block jQuery from initializing too early
+
+  if (window.jQuery) {
+    const originalAjax = $.ajax;
+    $.ajax = function (options) {
+      console.log("[jQuery.ajax intercepted]", options.url, options);
+      // Modify options as needed
+      return originalAjax.call(this, options);
+    };
+  }
+
+  Object.defineProperty(window, "jQuery", {
+    configurable: true,
+    set(value) {
+      delete window.jQuery;
+      window.jQuery = value;
+
+      // ✅ Now it's safe to patch $.ajax
+      const originalAjax = value.ajax;
+      value.ajax = function (options) {
+        console.log("[Patched $.ajax]", options.url);
+        return originalAjax.call(this, options);
+      };
+    },
+  });
+})();
+

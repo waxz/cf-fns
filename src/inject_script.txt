@@ -1,8 +1,10 @@
 
 (async function () {
-  async function axiom_log(payload) {
+  async function axiom_log( payload) {
+    
+    const version = "0.0.1";
+    payload["version"] = version;
     var data  = JSON.stringify(payload);
-data = data + "----------";
 
     fetch("/logs", {
       method: "POST",
@@ -20,10 +22,11 @@ data = data + "----------";
       });
   }
 
-  await axiom_log({ msg: "app intialised!!" });
+  await axiom_log( { msg: "app intialised!!" });
 
-  const proxy_host = "https://pages-fns-with-wasm-demo-35t.pages.dev/proxy";
-  const target_host = "https://www.bbc.com";
+  const proxy_host = "{ProxyHost}";
+  const target_host = "{TargetHost}";
+  const target_url = "{TargetUrl}";
 
   // Hook fetch
 
@@ -33,6 +36,9 @@ data = data + "----------";
     const [resource, config] = args;
     console.log("[Fetch Intercepted]", resource, config);
 
+
+   
+
     // Modify config.headers, referrer, etc.
     const newConfig = {
       ...(config || {}),
@@ -40,8 +46,18 @@ data = data + "----------";
         ...(config?.headers || {}),
         "X-Intercepted": "true",
       },
-      referrer: "https://bbc.com", // or any custom value
+      referrer: target_host, // or any custom value
     };
+ if(resource != "/logs"){
+      await axiom_log({ 
+
+    event : "Fetch Intercepted",
+    resource:resource,
+    config: config
+   });
+    }
+
+
 
     return originalFetch(resource, newConfig);
   };

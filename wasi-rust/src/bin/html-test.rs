@@ -1,151 +1,83 @@
-// When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
-// allocator.
-// #[cfg(feature = "wee_alloc")]
-// #[global_allocator]
-// static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+use serde::{Deserialize, Serialize};
 
-// use alloc_cat::{ALLOCATOR, AllocCat};
+// use serde_json::{Result, Value};
 
-// #[global_allocator]
-// pub static GLOBAL_ALLOCATOR: &AllocCat = &ALLOCATOR;
-
-const MEMORY_MAX_SIZE: usize = 200;
-static mut MEMORY_INDEX: usize = 0;
-static mut MEMORY_ADDR: [usize; MEMORY_MAX_SIZE] = [0; MEMORY_MAX_SIZE];
-static mut MEMORY_SIZE: [usize; MEMORY_MAX_SIZE] = [0; MEMORY_MAX_SIZE];
-
-#[no_mangle]
-pub extern "C" fn mem_addr(i: usize) -> usize {
-    unsafe { MEMORY_ADDR[i] }
+#[derive(Serialize, Deserialize)]
+struct HtmlReq {
+    text: String,
+    proxy_host: String,
+    target_host: String,
+    inject: String,
 }
 
 #[no_mangle]
-pub extern "C" fn mem_size(i: usize) -> usize {
-    unsafe { MEMORY_SIZE[i] }
-}
-#[no_mangle]
-pub extern "C" fn mem_store(ptr:*const u8, size:usize)->usize{
-    let index = unsafe { MEMORY_INDEX };
-    let old_size = mem_size(index);
+pub extern "C" fn process_html_req(idx: usize) -> usize {
+    let ptr = nx_mem::simple_alloc::mem_addr(idx);
+    let size = nx_mem::simple_alloc::mem_size(idx);
 
-    if old_size > 0{
-        mem_drop(index);
+    if ptr == 0 || size == 0 {
+        return 0;
     }
-        unsafe {
-        MEMORY_SIZE[index] = size;
+    let req: String = unsafe { String::from_raw_parts(ptr as *mut u8, size, size) };
 
-        MEMORY_ADDR[index] = ptr as usize;
-    }
+    if let Ok(req) = serde_json::from_str::<HtmlReq>(req.as_str()) {
+        let html: String = nx_html::my_html_rewrite(
+            &req.text.as_str(),
+            req.proxy_host.as_str(),
+            req.target_host.as_str(),
+            req.inject.as_str(),
+        );
 
-    unsafe {
-        MEMORY_INDEX = (MEMORY_INDEX + 1) % MEMORY_MAX_SIZE;
-    }
-
-    index
-
-}
-#[no_mangle]
-pub extern "C" fn mem_alloc(size: usize) -> usize {
-
-    let index = unsafe { MEMORY_INDEX };
-    let old_size = mem_size(index);
-
-    let ptr = if old_size > 0 {
-        let ptr = mem_addr(index) as *mut u8;
-        let mut vec = unsafe { Vec::from_raw_parts(ptr, old_size, old_size) };
-
-        vec.resize(size, 0);
-
-        let ptr = vec.as_ptr();
-        ptr
+        let index = nx_mem::simple_alloc::mem_store(html.as_ptr(), html.as_bytes().len());
+        std::mem::forget(html);
+        index
     } else {
-        let  vec = vec![0; size];
-        let ptr = vec.as_ptr();
-        std::mem::forget(vec);
-        ptr
-    };
-
-    unsafe {
-        MEMORY_SIZE[index] = size;
-
-        MEMORY_ADDR[index] = ptr as usize;
+        0
     }
-
-    unsafe {
-        MEMORY_INDEX = (MEMORY_INDEX + 1) % MEMORY_MAX_SIZE;
-    }
-
-    index
 }
+
 #[no_mangle]
-pub extern "C" fn mem_drop(i: usize) {
-    let size = mem_size(i);
-    if size == 0 {
-        return;
-    }
-
-    let ptr = mem_addr(i) as *mut u8;
-
-    let _ = unsafe { Vec::from_raw_parts(ptr, size, size) };
-
-    unsafe {
-        MEMORY_SIZE[i] = 0;
-
-        MEMORY_ADDR[i] = 0 as usize;
-    };
-}
-#[no_mangle]
-pub extern "C" fn change_string(ptr:*mut u8, size:usize)-> usize{
-
-    let s1 = unsafe{String::from_raw_parts(ptr, size, size)};
+pub extern "C" fn change_string(ptr: *mut u8, size: usize) -> usize {
+    let s1 = unsafe { String::from_raw_parts(ptr, size, size) };
 
     let s2 = format!("hello {}, ptr:{:?}, size:{}", s1, ptr, size);
 
-    let index = mem_store(s2.as_ptr(),s2.as_bytes().len());
+    let index = nx_mem::simple_alloc::mem_store(s2.as_ptr(), s2.as_bytes().len());
     std::mem::forget(s2);
     index
 }
 
-
 #[no_mangle]
 pub extern "C" fn dummy() {
-    nx_mem::ta_alloc::my_init();
-    let ptr = nx_mem::ta_alloc::my_alloc(100) as *const u8;
-    println!("ptr, {:?}", ptr);
-    let ptr = nx_mem::ta_alloc::my_alloc(100) as *const u8;
-    println!("ptr, {:?}", ptr);
-    let _ = nx_mem::ta_alloc::my_get_size(ptr);
-    nx_mem::ta_alloc::my_free(ptr);
-    // let _ = nx_mem::ta_alloc::my_get_size(ptr);
+    let idx = nx_mem::simple_alloc::mem_alloc(128);
+
+    println!(
+        "idx: {}, addr: {}, size: {}",
+        idx,
+        nx_mem::simple_alloc::mem_addr(idx),
+        nx_mem::simple_alloc::mem_size(idx)
+    )
 }
 
-#[no_mangle]
-pub extern "C" fn init_main_memory_buffer() -> usize {
-    if (unsafe { !MY_TA_BUFFER_INIT }) {
-        let mut zero_vec = vec![0u8; MY_TA_BUFFER_SIZE];
-        let base = zero_vec.as_mut_ptr();
-        std::mem::forget(zero_vec);
+// #[no_mangle]
+// pub extern "C" fn init_main_memory_buffer() -> usize {
+//     if unsafe { !MY_TA_BUFFER_INIT } {
+//         let mut zero_vec = vec![0u8; MY_TA_BUFFER_SIZE];
+//         let base = zero_vec.as_mut_ptr();
+//         std::mem::forget(zero_vec);
 
-        nx_mem::ta_alloc::my_init_buffer(
-            // unsafe { &raw mut MY_TA_BUFFER } as *mut u8,
-            base,
-            MY_TA_BUFFER_SIZE,
-        );
+//         nx_mem::ta_alloc::my_init_buffer(
+//             // unsafe { &raw mut MY_TA_BUFFER } as *mut u8,
+//             base,
+//             MY_TA_BUFFER_SIZE,
+//         );
 
-        unsafe { MY_TA_BUFFER_INIT = true };
-    }
+//         unsafe { MY_TA_BUFFER_INIT = true };
+//     }
 
-    1 as usize
-}
+//     1 as usize
+// }
 
-#[no_mangle]
-pub extern "C" fn hello_num(num: usize) -> usize {
-    //  println!("wasi recieve num {}",num )
-
-    num + 10
-}
-
-use std::fmt::format;
 use std::fs::File;
 use std::io::Read;
 
@@ -158,46 +90,46 @@ pub fn read_file(path: &str) -> String {
     }
 }
 // Add this to ensure memory is exported automatically
-#[no_mangle]
-pub static mut __heap_base: u8 = 0;
-#[no_mangle]
-pub extern "C" fn html_rewrite(
-    html_ptr: *const u8,
-    html_len: usize,
-    proxy_host_ptr: *const u8,
-    proxy_host_len: usize,
-    target_host_ptr: *const u8,
-    target_host_len: usize,
-) -> *const u8 {
-    let html = unsafe { String::from_raw_parts(html_ptr as *mut u8, html_len, html_len) };
+// #[no_mangle]
+// pub static mut __heap_base: u8 = 0;
+// #[no_mangle]
+// pub extern "C" fn html_rewrite(
+//     html_ptr: *const u8,
+//     html_len: usize,
+//     proxy_host_ptr: *const u8,
+//     proxy_host_len: usize,
+//     target_host_ptr: *const u8,
+//     target_host_len: usize,
+// ) -> *const u8 {
+//     let html = unsafe { String::from_raw_parts(html_ptr as *mut u8, html_len, html_len) };
 
-    let proxy_host = unsafe {
-        String::from_raw_parts(proxy_host_ptr as *mut u8, proxy_host_len, proxy_host_len)
-    };
+//     let proxy_host = unsafe {
+//         String::from_raw_parts(proxy_host_ptr as *mut u8, proxy_host_len, proxy_host_len)
+//     };
 
-    let target_host = unsafe {
-        String::from_raw_parts(target_host_ptr as *mut u8, target_host_len, target_host_len)
-    };
+//     let target_host = unsafe {
+//         String::from_raw_parts(target_host_ptr as *mut u8, target_host_len, target_host_len)
+//     };
 
-    let html = nx_html::my_html_rewrite(html.as_str(), proxy_host.as_str(), target_host.as_str());
+//     let html = nx_html::my_html_rewrite(html.as_str(), proxy_host.as_str(), target_host.as_str());
 
-    let resp_html_ptr = nx_mem::ta_alloc::my_alloc(html.len()) as *mut u8;
+//     let resp_html_ptr = nx_mem::ta_alloc::my_alloc(html.len()) as *mut u8;
 
-    // unsafe {
-    //     std::ptr::copy(html.as_ptr(), resp_html_ptr as *mut _, html.len());
-    // }
+//     // unsafe {
+//     //     std::ptr::copy(html.as_ptr(), resp_html_ptr as *mut _, html.len());
+//     // }
 
-    let buf = unsafe { std::slice::from_raw_parts_mut(resp_html_ptr, html.len()) };
-    // println!(" buf len : {}", buf.len());
-    buf.copy_from_slice(html.as_bytes());
-    // std::mem::forget(html);
+//     let buf = unsafe { std::slice::from_raw_parts_mut(resp_html_ptr, html.len()) };
+//     // println!(" buf len : {}", buf.len());
+//     buf.copy_from_slice(html.as_bytes());
+//     // std::mem::forget(html);
 
-    resp_html_ptr
-}
+//     resp_html_ptr
+// }
 
-const MY_TA_BUFFER_SIZE: usize = 1024 * 1024 * 2;
+static MY_TA_BUFFER_SIZE: usize = 1024 * 1024 * 2;
 static mut MY_TA_BUFFER: [u8; MY_TA_BUFFER_SIZE] = [0; MY_TA_BUFFER_SIZE];
-static mut MY_TA_BUFFER_INIT: bool = false;
+// static mut MY_TA_BUFFER_INIT: bool = false;
 fn main() -> std::io::Result<()> {
     let html = r#"
 <!DOCTYPE html>
@@ -230,7 +162,8 @@ fn main() -> std::io::Result<()> {
     <body>
         <p>==== Nav ====</p>
         {nav}
-        <img src="aaaa"> </img>
+        <a href="aa">aa</a>
+        <img  > test </img>
     </body>
 </html>
 
@@ -241,21 +174,16 @@ fn main() -> std::io::Result<()> {
     let proxy_host = "aaaa".to_string();
     let target_host = "bbbb".to_string();
 
-    init_main_memory_buffer();
+    let html: String = nx_html::my_html_rewrite(html, proxy_host.as_str(), target_host.as_str(),"<script> alert(123)</script>");
 
-    let html: String = nx_html::my_html_rewrite(html, proxy_host.as_str(), target_host.as_str());
+    println!("resp_html:{:?}", html);
+
     let d = unsafe { &mut MY_TA_BUFFER[1] };
     *d = 100;
 
-    println!("base      ptr:{:?}", unsafe { &raw mut MY_TA_BUFFER }
-        as *mut u8);
-    println!("basesize  ptr:{:?}", unsafe { &mut MY_TA_BUFFER_SIZE }
-        as *mut usize);
-    println!("d         ptr:{:?}", unsafe { d } as *mut u8);
-
-    let resp_html_ptr = nx_mem::ta_alloc::my_alloc(html.len()) as *mut u8;
-
-    println!("resp_html_ptr:{:?}", resp_html_ptr);
+    println!("base      ptr:{:?}", &raw mut MY_TA_BUFFER as *mut u8);
+    println!("basesize  ptr:{:?}", &MY_TA_BUFFER_SIZE as *const usize);
+    println!("d         ptr:{:?}", d as *mut u8);
 
     let mut vbuf = [0_u8; 10000];
     let resp_html_ptr = vbuf.as_mut_ptr();

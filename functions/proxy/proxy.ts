@@ -4,11 +4,14 @@ import { encodeToHex, decodeFromHex, isHexEncoded, replace_text } from "../../sr
 
 import { axiom_logger } from "../../src/utils/axiom";
 
+import { template_replace } from "../../src/utils/template_replace"
+
+
 import { encode_text, get_memory_array } from "../../src/utils/encode"
-import {get_headers} from "../../src/utils/print_request"
+import { get_headers } from "../../src/utils/print_request"
 
 import { get_instance, ExecOptions } from "../../src/utils/wasi_common"
-import { html_test,inject_script } from "../../src/resource";
+import { html_test, inject_script } from "../../src/resource";
 const html_test_execOptions: ExecOptions = {
     moduleName: "html_rewriter",
     presist: true,
@@ -161,9 +164,9 @@ export async function fetch_proxy(context) {
 
     if (url.pathname.startsWith('/proxy/http://') || url.pathname.startsWith('/proxy/https://')) {
         var target_domain = url.pathname.slice(7, url.pathname.length);
-        const searchParams = url.searchParams ;
+        const query = url.search; // This already includes the "?" if present
 
-        var target_url = `${target_domain}${searchParams}`;
+        var target_url = `${target_domain}${query}`;
         console.log(`target_domain: ${target_domain} target_url: ${target_url}`)
 
         const target_URL = new URL(target_url);
@@ -229,51 +232,69 @@ export async function fetch_proxy(context) {
 
         const resp = await fetch(new_req);
 
-        const conten_type = resp.headers.has("content-type") ? resp.headers.get("content-type")  :"";
+        const conten_type = resp.headers.has("content-type") ? resp.headers.get("content-type") : "";
 
-        
+
 
         console.log(`conten_type: ${conten_type}`)
-           const resp_headers = new Headers(resp.headers);
+        const resp_headers = new Headers(resp.headers);
 
-            resp_headers.set("Access-Control-Allow-Origin", "*");
-            resp_headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
-            resp_headers.set("Access-Control-Max-Age", "3600");
-            resp_headers.set("Access-Control-Allow-Headers", "x-requested-with");
-            const status = resp.status;
+        resp_headers.set("Access-Control-Allow-Origin", "*");
+        resp_headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+        resp_headers.set("Access-Control-Max-Age", "3600");
+        resp_headers.set("Access-Control-Allow-Headers", "x-requested-with");
+        var status = resp.status;
+        console.log(`status: ${status}`);
+        const no_reply_status = [101, 204, 205, 304];
+
 
         if (conten_type.includes('text/html')) {
+            // force inject
+            // status = 200;
 
- 
+
+            if( no_reply_status.includes(status) ){
+            return new Response(null, { headers: resp_headers, status: status });
+            }
+
+
 
 
             const inject = "<script>"
-                        + "const originalFetch = window.fetch;" 
-                        + "window.fetch = async (input, init) => { "
-                        + `const proxy_host="${proxy_host}"`
-                        + `const target_host="${target_host}"`
-                        + "console.log('[Fetch Intercepted] Rewriting:', url); " 
-                        + "let url = typeof input === 'string' ? input : input.url; "
-                        + "console.log('[Fetch Intercepted] Rewriting:', url); " 
-                        + "const fetch_local_regex = /^\/proxy\/[a-zA-Z0-9.-]+\.js$/;" 
-                        + "if (fetch_local_regex.test(url)) {" 
-                        + "const newUrl = \`https://your-cdn.com${url}`; " 
-                        + "console.log('[Fetch Intercepted] Rewriting:', url, '→', newUrl); } " 
-                        + "return originalFetch(url, init); }; "
-                        + "const originalXHROpen = XMLHttpRequest.prototype.open;"
-                        + "XMLHttpRequest.prototype.open = function (method, url, async, user, password) {"
-                        + "console.log('[Fetch Intercepted] Rewriting:', url); "
-                        + "const fetch_local_regex = /^\/proxy\/[a-zA-Z0-9.-]+\.js$/; "
-                        + "if (fetch_local_regex.test(url)) { "
-                        + "const newUrl = `https://your-cdn.com${url}`; "
-                        + "console.log('[XHR Intercepted] Rewriting:', url, '→', newUrl); }"
-                        + "return originalXHROpen.call(this, method, url, async, user, password);};"
-                        + "</script>";
+                + "const originalFetch = window.fetch;"
+                + "window.fetch = async (input, init) => { "
+                + `const proxy_host="${proxy_host}"`
+                + `const target_host="${target_host}"`
+                + "console.log('[Fetch Intercepted] Rewriting:', url); "
+                + "let url = typeof input === 'string' ? input : input.url; "
+                + "console.log('[Fetch Intercepted] Rewriting:', url); "
+                + "const fetch_local_regex = /^\/proxy\/[a-zA-Z0-9.-]+\.js$/;"
+                + "if (fetch_local_regex.test(url)) {"
+                + "const newUrl = \`https://your-cdn.com${url}`; "
+                + "console.log('[Fetch Intercepted] Rewriting:', url, '→', newUrl); } "
+                + "return originalFetch(url, init); }; "
+                + "const originalXHROpen = XMLHttpRequest.prototype.open;"
+                + "XMLHttpRequest.prototype.open = function (method, url, async, user, password) {"
+                + "console.log('[Fetch Intercepted] Rewriting:', url); "
+                + "const fetch_local_regex = /^\/proxy\/[a-zA-Z0-9.-]+\.js$/; "
+                + "if (fetch_local_regex.test(url)) { "
+                + "const newUrl = `https://your-cdn.com${url}`; "
+                + "console.log('[XHR Intercepted] Rewriting:', url, '→', newUrl); }"
+                + "return originalXHROpen.call(this, method, url, async, user, password);};"
+                + "</script>";
 
 
 
+                const replacement = {
+                    ProxyHost: proxy_host,
+                    TargetHost: target_host,
+                    TargetUrl : target_url
+                }
 
-                        const inject_data =`<script>${inject_script}</script>` ;
+            const updated_inject_script = template_replace(inject_script ,replacement);
+
+
+            const inject_data = `<script>${updated_inject_script}</script>`;
 
 
             const html = await resp.text();
@@ -282,7 +303,7 @@ export async function fetch_proxy(context) {
                 text: html,
                 proxy_host: proxy_host,
                 target_host: target_host,
-                inject:inject_data
+                inject: inject_data
             });
             const result = send_string_to_wasm(html_req);
             console.log(`send_string_to_wasm byteOffset:${result.array.byteOffset}, byteLength:${result.array.byteLength}`)

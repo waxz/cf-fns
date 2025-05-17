@@ -4,19 +4,17 @@
   "description": "A demo app that exemplifies wasm module imports in Pages Functions",
   "scripts": {
     "dev": "nodemon --watch app-web/src --ext \"html,scss,js,mjs,ts,json\" -x \"yarn web && cp -r ./app-rust/pkg/ ./public/dist && npx wrangler pages dev public/dist \"",
-    "web": "parcel build  --cache-dir /tmp/.parcel-cache 'app-web/src/proxy/*.html' --dist-dir public/dist/proxy &&parcel build 'app-web/src/*.html' 'app-web/src/login/*.html' 'app-web/src/logs/*.html' --dist-dir public/dist && cp ./app-web/src/proxy/mockServiceWorker.js public/dist/proxy/ && yarn quartz",
+    "web": "rm -rf   /tmp/.parcel-cache dist public/dist && parcel build  --cache-dir /tmp/.parcel-cache 'app-web/src/proxy/*.html' 'app-web/src/*.html' 'app-web/src/login/*.html' 'app-web/src/logs/*.html' --dist-dir public/dist && cp -r app-web/src/favicon.ico public/dist/   && cp -r sqliteviz public/dist/  && npx msw init  && yarn quartz",
     "rust": "cd app-rust && cargo tt",
-    "clean" : " rm -rf  /tmp/.parcel-cache dist public/dist",
-
+    "clean": " rm -rf   /tmp/.parcel-cache dist public/dist",
     "wasi": "cd wasi-rust &&cargo ii && cargo tt ",
     "lint": "eslint .",
     "serve": "export ssl_certificate_key=cert/private.pem; export ssl_certificate=./cert/certificate.pem ;npx wrangler pages dev --local-protocol http --https-key-path $ssl_certificate_key --https-cert-path $ssl_certificate --port 8888 --ip 0.0.0.0",
-    "deploy": "npx wrangler pages deploy && npx wrangler pages deployment tail --project-name pages-fns-with-wasm-demo",
+    "deploy": "npx wrangler pages deploy && npx wrangler pages deployment tail --project-name cf-fns",
     "generate-types": "wrangler types --path='./functions/types.d.ts'",
     "quartz": "if [ ! -d ./public/dist/quartz ] ; then mkdir -p ./public/dist/quartz ;fi;docker run --name quartz_builder -v /tmp/quartz:/tmp/quartz -v ./content:/tmp/content -v ./public/dist/quartz:/tmp/output -w /tmp/quartz --rm  node:22 bash -c 'npm install -g npm@11.2.0 && npm i && npx quartz build -d /tmp/content -o /tmp/output'; sudo chown -R $USER:$USER ./public/dist/quartz "
   },
   "devDependencies": {
-
     "buffer": "^6.0.3",
     "eslint": "^9.25.1",
     "msw": "^2.7.6",
@@ -30,6 +28,17 @@
   "dependencies": {
     "@cloudflare/workers-wasi": "^0.0.5",
     "cloudflare": "4.2.0",
-    "@mswjs/interceptors":"0.38.6"
+    "@mswjs/interceptors": "0.38.6",
+    "@axiomhq/js": "1.3.1",
+    "@axiomhq/logging": "0.1.2",
+    "loglayer":"6.4.0",
+    "@loglayer/transport-axiom":"2.1.0",
+    "serialize-error":"12.0.0"
+
+  },
+  "msw": {
+    "workerDirectory": [
+      "./public/dist"
+    ]
   }
 }

@@ -3,6 +3,7 @@
         "swellaby.rust-pack",
         "ms-vscode.vscode-typescript-next",
         "rust-lang.rust-analyzer",
-        "ms-vscode.vscode-typescript-next"
+        "ms-vscode.vscode-typescript-next",
+        "xabikos.javascriptsnippets"
     ]
 }

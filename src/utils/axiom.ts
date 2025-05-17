@@ -106,7 +106,7 @@ export async function init_client(context) {
         await axiom.ingest(dataset, {msg:"hello axiom2"});
         await axiom_logger({msg:"hello axiom3"});
         await axiom.flush();
-  await axiom_logger({msg:"app started"});
+        await axiom_logger({msg:"app started"});
 
 
     }

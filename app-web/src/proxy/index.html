@@ -5,7 +5,10 @@
     <title>Functions : powered by cloudflare</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://developer.mozilla.org/static/css/main.a7f6bb79.css" rel="stylesheet">
+    
+    <!-- <link href="https://developer.mozilla.org/static/css/main.a7f6bb79.css" rel="stylesheet"> -->
+
+
     <style>@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:300;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Lt.woff2) format('woff2')}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:400;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Rg.woff2) format('woff2')}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:500;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Md.woff2) format('woff2')}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:700;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Bd.woff2) format('woff2')}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:900;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_ExBd.woff2) format('woff2')}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:300;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_LtIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:400;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_It.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:500;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_MdIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:700;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_BdIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Sans';font-display:block;font-weight:900;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_ExBdIt.woff2) format('woff2');font-style:italic}@font-face{font-family:ReithSans;font-display:block;font-weight:300;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Lt.woff2) format('woff2')}@font-face{font-family:ReithSans;font-display:block;font-weight:400;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Rg.woff2) format('woff2')}@font-face{font-family:ReithSans;font-display:block;font-weight:500;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Md.woff2) format('woff2')}@font-face{font-family:ReithSans;font-display:block;font-weight:700;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Bd.woff2) format('woff2')}@font-face{font-family:ReithSans;font-display:block;font-weight:900;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_ExBd.woff2) format('woff2')}@font-face{font-family:ReithSerif;font-display:block;font-weight:300;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Lt.woff2) format('woff2')}@font-face{font-family:ReithSerif;font-display:block;font-weight:400;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Rg.woff2) format('woff2')}@font-face{font-family:ReithSerif;font-display:block;font-weight:500;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Md.woff2) format('woff2')}@font-face{font-family:ReithSerif;font-display:block;font-weight:700;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Bd.woff2) format('woff2')}@font-face{font-family:ReithSerif;font-display:block;font-weight:900;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_ExBd.woff2) format('woff2')}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:300;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Lt.woff2) format('woff2')}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:400;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Rg.woff2) format('woff2')}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:500;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Md.woff2) format('woff2')}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:700;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_Bd.woff2) format('woff2')}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:900;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_ExBd.woff2) format('woff2')}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:300;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_LtIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:400;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_It.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:500;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_MdIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:700;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_BdIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'BBC Reith Serif';font-display:block;font-weight:900;src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSerif_W_ExBdIt.woff2) format('woff2');font-style:italic}@font-face{font-family:'Freight Disp Light';font-display:swap;src:url(https://static.files.bbci.co.uk/bbcdotcom/web/20250428-123652-7bc49a8f4-web-2.20.1-1/Freight_Disp_Light.woff2) format('woff2')}@font-face{font-family:BBCReithSans-fallback;size-adjust:103%;ascent-override:normal;src:local('Arial')}@font-face{font-family:BBCReithSans-fallback;font-weight:500;size-adjust:96%;ascent-override:normal;src:local('Arial Bold')}@font-face{font-family:BBCReithSerif-fallback;size-adjust:120%;ascent-override:75%;src:local('Times New Roman')}@font-face{font-family:BBCReithSerif-fallback;font-weight:500;size-adjust:110%;ascent-override:75%;src:local('Times New Roman Bold')}</style>
 
     <style>
@@ -44,152 +47,10 @@
             background-color: rgb(0, 255, 0);
         }
     </style>
+    
+    <!--    <script type="module" src="./registerServiceWorker.js"></script>-->
+       
 
-    <script type="module">
-
-
-    // intercetor
-const originalFetch = window.fetch;
-
-window.fetch = async (input, init) => {
-  let url = typeof input === 'string' ? input : input.url;
-    console.log('[Fetch Intercepted] Rewriting:', url);
-
-  // Rewrite logic
-  const fetch_local_regex = /^\/proxy\/[a-zA-Z0-9.-]+\.js$/;
-  if (fetch_local_regex.test(url)) {
-    const newUrl = `https://your-cdn.com${url}`;
-    console.log('[Fetch Intercepted] Rewriting:', url, '→', newUrl);
-    url = newUrl;
-  }
-
-  return originalFetch(url, init);
-};
-
-const originalXHROpen = XMLHttpRequest.prototype.open;
-
-XMLHttpRequest.prototype.open = function (method, url, async, user, password) {
-    console.log('[Fetch Intercepted] Rewriting:', url);
-
-  // Rewrite logic
-  const fetch_local_regex = /^\/proxy\/[a-zA-Z0-9.-]+\.js$/;
-  if (fetch_local_regex.test(url)) {
-    const newUrl = `https://your-cdn.com${url}`;
-    console.log('[XHR Intercepted] Rewriting:', url, '→', newUrl);
-    url = newUrl;
-  }
-
-  return originalXHROpen.call(this, method, url, async, user, password);
-};
-
-
-    //
-
-    //
-
-
-
-
-
-
-
-        import { setupWorker } from 'msw/browser'
-        import { handlers } from './handlers'
-        import { http, HttpResponse } from 'msw'
-
-
-        async function unregisterAll() {
-            if (window.navigator && navigator.serviceWorker) {
-                await navigator.serviceWorker.getRegistrations()
-                    .then(async function (registrations) {
-                        for (let registration of registrations) {
-                            registration.active.postMessage('purge_cache');
-
-                            await registration.unregister().then(function () {
-                                console.log('Service worker unregistered successfully.');
-                                // Optionally, reload the page after unregistration
-                                // window.location.reload(true);
-                            }).catch(function (error) {
-                                console.error('Service worker unregistration failed:', error);
-                            });
-
-                        }
-                    });
-            }
-        }
-        function send_data(data) {
-            navigator.serviceWorker.ready.then((registration) => {
-                registration.active.postMessage(data);
-            });
-        }
-
-
-        // Do something with cacheName.
-        if ('serviceWorker' in navigator) {
-            // await unregisterAll();
-
-            //https://github.com/parcel-bundler/parcel/issues/8307
-            //https://parceljs.org/features/targets/#implicit-environments
-            //https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/message_event
-
-            const use_local_service = true;
-            if (use_local_service) {
-                // window.addEventListener('load', () => {
-                var worker_url = new URL("./service-worker.js", import.meta.url);
-                console.log(`import.meta.url ${import.meta.url}, worker_url ${worker_url}`);
-                await navigator.serviceWorker.register(worker_url)
-                    .then((registration) => {
-                        if (registration.active) {
-                            send_data('KEEPALIVE_REQUEST');
-                            console.log('Service worker is active');
-                        }
-                    });
-                // });
-            } else {
-                const handlers = [
-                    http.all('*', async ({ request, params, cookies }) => {
-                        console.log('Intercepted request to:', request.url);
-                        const resp = await fetch(event.request);
-                        console.log('Intercepted fetch resp:', resp);
-
-
-                        // Optionally return a mocked response
-                        return HttpResponse(resp.body, {
-                            status: resp.status,
-                            headers: resp.headers,
-                        });
-                    }),
-                ];
-
-                const worker = setupWorker(...handlers)
-                await worker.start({
-                    serviceWorker: {
-                        // This is useful if your application follows
-                        // a strict directory structure.
-                        url: '/proxy/mockServiceWorker.js',
-                    },
-                }) // Promise<{ pending }>
-
-            }
-
-
-            navigator.serviceWorker.addEventListener("message", (event) => {
-                console.log(`navigator.serviceWorker.addEventListener => message`);
-
-                console.log(event.data);
-
-                switch (event.data) {
-                    case 'KEEPALIVE_RESPONSE': {
-                        console.log(`KEEPALIVE`);
-                        break
-                    }
-                }
-            });
-
-
-
-        }
-    </script>
 
     <script>
         //https://stackoverflow.com/questions/179355/clearing-all-cookies-with-javascript
@@ -271,7 +132,7 @@ fetch(url, options)
     console.error('Error:', error);
   });
             //
-           // location.pathname = pathname;
+        location.pathname = pathname;
         }
     </script>
 

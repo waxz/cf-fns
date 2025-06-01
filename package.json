@@ -9,7 +9,7 @@
     "clean": " rm -rf   /tmp/.parcel-cache dist public/dist",
     "wasi": "cd wasi-rust &&cargo ii ",
     "lint": "eslint .",
-    "serve": "export ssl_certificate_key=cert/private.pem; export ssl_certificate=./cert/certificate.pem ;npx wrangler pages dev --local-protocol http --https-key-path $ssl_certificate_key --https-cert-path $ssl_certificate --ip 0.0.0.0",
+    "serve": "export ssl_certificate_key=cert/private.pem; export ssl_certificate=./cert/certificate.pem ;npx wrangler pages dev --local-protocol http --https-key-path $ssl_certificate_key --https-cert-path $ssl_certificate --ip 0.0.0.0 -b AXIOM_TOKEN=$AXIOM_TOKEN AXIOM_DATASET=$AXIOM_DATASET AXIOM_ORG_ID=$AXIOM_ORG_ID",
     "deploy": "npx wrangler pages deploy && npx wrangler pages deployment tail --project-name cf-fns",
     "generate-types": "wrangler types --path='./functions/types.d.ts'",
     "quartz": "if [ ! -d ./public/dist/quartz ] ; then mkdir -p ./public/dist/quartz ;fi;docker run --name quartz_builder -v /tmp/quartz:/tmp/quartz -v ./content:/tmp/content -v ./public/dist/quartz:/tmp/output -w /tmp/quartz --rm  node:22 bash -c 'npm install -g npm@11.2.0 && npm i && npx quartz build -d /tmp/content -o /tmp/output'; sudo chown -R $USER:$USER ./public/dist/quartz "

@@ -19,3 +19,16 @@ export function print_request(context) {
     console.log(`x-forwarded-proto: ${xForwardedProto}`);
   
   }
+
+
+export function get_headers(request:Request): {}{
+  const headers = {};
+  if(request.headers){
+ 
+     for (const [key, value] of request.headers.entries()) {
+       headers[key] = value;
+     };
+ 
+  }    return headers;
+ 
+ }

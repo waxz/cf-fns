@@ -158,12 +158,20 @@ fn main() -> std::io::Result<()> {
 
               
         </script>
+        <style>
+        @font-face{font-family:'BBC Reith Sans';
+        font-display:block;font-weight:300;
+        src:url(https://static.files.bbci.co.uk/fonts/reith/2.512/BBCReithSans_W_Lt.woff2) ;
+        src:url(/BBCReithSans_W_Lt.woff2) ;
+
+        </style>
     </head>
     <body>
         <p>==== Nav ====</p>
         {nav}
         <a href="aa">aa</a>
-        <img  > test </img>
+        <img srcset="https://ichef.bbci.co.uk/news/240/cpsprodpb/327c/live/c1597290-338f-11f0-b9e6-8fbaa4ab84e9.jpg.webp 240w,https://ichef.bbci.co.uk/news/320/cpsprodpb/327c/live/c1597290-338f-11f0-b9e6-8fbaa4ab84e9.jpg.webp 320w,https://ichef.bbci.co.uk/news/480/cpsprodpb/327c/live/c1597290-338f-11f0-b9e6-8fbaa4ab84e9.jpg.webp 480w,https://ichef.bbci.co.uk/news/640/cpsprodpb/327c/live/c1597290-338f-11f0-b9e6-8fbaa4ab84e9.jpg.webp 640w,https://ichef.bbci.co.uk/news/800/cpsprodpb/327c/live/c1597290-338f-11f0-b9e6-8fbaa4ab84e9.jpg.webp 800w,https://ichef.bbci.co.uk/news/1024/cpsprodpb/327c/live/c1597290-338f-11f0-b9e6-8fbaa4ab84e9.jpg.webp 1024w,https://ichef.bbci.co.uk/news/1536/cpsprodpb/327c/live/c1597290-338f-11f0-b9e6-8fbaa4ab84e9.jpg.webp 1536w" > test </img>
+        <img src="https://ichef.bbci.co.uk/news/240/cpsprodpb/327c/live/c1597290-338f-11f0-b9e6-8fbaa4ab84e9.jpg.webp" > test </img>
     </body>
 </html>
 
@@ -171,8 +179,8 @@ fn main() -> std::io::Result<()> {
 
 "#;
 
-    let proxy_host = "aaaa".to_string();
-    let target_host = "bbbb".to_string();
+    let proxy_host = "https://abc.com/proxy".to_string();
+    let target_host = "https://www.bbc.com".to_string();
 
     let html: String = nx_html::my_html_rewrite(html, proxy_host.as_str(), target_host.as_str(),"<script> alert(123)</script>");
 

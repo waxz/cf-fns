@@ -1,4 +1,17 @@
 
+
+
+export function encode_text(data:string):Uint8Array{
+    const encoded = new TextEncoder().encode(data);
+    return encoded;
+}
+export function get_memory_array(data: Uint8Array, ptr: number, buffer: ArrayBufferLike): Uint8Array {
+ 
+    const input_memory = new Uint8Array(buffer, ptr, data.byteLength);
+
+    input_memory.set(data);
+    return input_memory;
+}
 async function encode(text: string,code: string) {
     const myText = new TextEncoder().encode(text);
     const myDigest = await crypto.subtle.digest(
@@ -48,7 +61,7 @@ export function replace_text(text, host) {
         const updated =  text.replace(/(["'])(.*?\\x[0-9A-Fa-f]{2}.*?)(\1)/g, (match, quote, encoded, endQuote) => {
             // Safely decode and re-encode this matched hex string
             const decoded = decodeFromHex(encoded);
-            const updated = decoded.replace(/https?:\/\//g, `${host}/proxy/https://`);
+            const updated = decoded.replace(/https?:\/\//g, `${host}/https://`);
             const reencoded = encodeToHex(updated);
             return `${quote}${reencoded}${endQuote}`;
         });
@@ -56,7 +69,7 @@ export function replace_text(text, host) {
     
         return updated;
     }else{
-        const updated =  text.replace(/https?:\/\//g, `${host}/proxy/https://`);
+        const updated =  text.replace(/https?:\/\//g, `${host}/https://`);
 
         console.log(`replace_text: is_hex ${is_hex}, updated: ${updated}`)
     
